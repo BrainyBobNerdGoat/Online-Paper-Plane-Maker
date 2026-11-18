@@ -1,0 +1,1749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fold Lab — Paper Plane Maker</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+  <style>
+    :root{--ink:#18202a;--paper:#fffef8;--blue:#2e65ff;--cyan:#61d7d2;--orange:#ff7043;--line:#d9dcd8}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#edf0eb;color:var(--ink);height:100vh;height:100dvh;overflow:hidden}
+    button,input,select{font:inherit} button{cursor:pointer}
+    .app{height:100vh;height:100dvh;min-height:0;display:grid;grid-template-rows:66px minmax(0,1fr) 54px}
+    header{background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid #dfe3dc}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:-.5px}.brandmark{width:34px;height:34px;background:var(--ink);clip-path:polygon(100% 0,18% 48%,100% 100%,77% 56%,48% 48%,100% 0)}
+    .brand small{display:block;color:#7d857f;font-size:10px;letter-spacing:1.8px;margin-top:1px}.header-actions{display:flex;gap:8px}.header-actions button{border:1px solid #d9ddd6;background:white;border-radius:8px;padding:9px 12px;font-weight:750;font-size:12px}
+    #saveBtn{background:var(--ink)!important;color:white!important;border-color:var(--ink)!important}
+    main{display:grid;grid-template-columns:minmax(200px,270px) minmax(0,1fr) minmax(220px,280px);min-width:0;min-height:0;overflow:hidden}
+    aside{min-width:0;min-height:0;overflow-y:auto;overscroll-behavior:contain;background:#f8f9f6;border-right:1px solid #dde1da;padding:18px}.right{border-right:0;border-left:1px solid #dde1da}
+    h2{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;margin:2px 0 14px}.step{border:1px solid #dde1da;background:white;border-radius:10px;margin-bottom:8px;padding:11px 12px;display:flex;align-items:center;gap:10px;transition:.2s}.step.done{border-color:#9eb4ac}.step.active{border:2px solid var(--blue);box-shadow:0 4px 14px #2e65ff18}.step .num{width:25px;height:25px;border-radius:50%;background:#edf0eb;display:grid;place-items:center;font-size:11px;font-weight:850}.step.active .num{background:var(--blue);color:white}.step.done .num{background:#d8eee8;color:#237760}.step strong{font-size:13px}.step span:last-child{display:block;color:#858d87;font-size:10px;margin-top:2px}
+    .stage{position:relative;min-width:0;min-height:0;overflow:hidden;background:#edf0eb}.stage-head{min-height:54px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;position:absolute;z-index:3;width:100%;top:0;padding:4px 8px}.pill{background:white;border:1px solid #dfe3dc;border-radius:20px;padding:7px 12px;font-size:11px;font-weight:800;color:#697169}.stage canvas{width:100%;height:100%;display:block;touch-action:none}.tooltip{position:absolute;left:50%;bottom:22px;transform:translateX(-50%);max-width:calc(100% - 24px);background:var(--ink);color:white;border-radius:8px;padding:9px 13px;font-size:12px;font-weight:700;text-align:center;box-shadow:0 8px 30px #0002;pointer-events:none;transition:.2s;white-space:normal}
+    .stage-head button.pill{font:inherit;cursor:pointer}.stage-head button.pill[hidden]{display:none}
+    .paper-size{background:white;border:1px solid #dde1da;border-radius:9px;padding:12px;margin-bottom:10px}.paper-size b{display:block;font-size:15px}.paper-size span{display:block;color:#858d87;font-size:10px;margin-top:3px}.symmetry-toggle{display:flex;align-items:center;gap:9px;background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin-bottom:10px;cursor:pointer}.symmetry-toggle input{accent-color:var(--blue);margin:0}.symmetry-toggle b,.symmetry-toggle small{display:block}.symmetry-toggle b{font-size:11px}.symmetry-toggle small{font-size:9px;color:#858d87;margin-top:2px}.crease-tools{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin-bottom:14px}.crease-tools label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin:2px 0 5px}.crease-tools select,.crease-tools input{width:100%;border:1px solid #dde1da;border-radius:6px;padding:7px;background:#fbfcf9;font-size:11px}.crease-tools .horizontal-row{display:flex;gap:5px}.crease-tools .horizontal-row input{min-width:0}.crease-tools .horizontal-row button,.crease-tools .tool-button{border:1px solid #d9ddd6;border-radius:6px;background:#edf0eb;padding:7px 8px;font-size:10px;font-weight:800;white-space:nowrap}.crease-tools .tool-button{width:100%;margin-top:7px}.crease-tools .tool-button.active{background:#e5edfc;border-color:var(--blue);color:var(--blue)}.crease-tools small{display:block;font-size:9px;color:#858d87;margin-top:5px}.footer-actions #foldBtn{background:var(--blue);color:white;border-color:var(--blue)}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px}.stat label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1px;color:#858d87;font-weight:800}.stat b{display:block;font-size:20px;margin-top:3px}.stat b small{font-size:9px;color:#858d87}.stat .meter{height:4px;background:#e6e9e3;margin-top:7px;border-radius:5px;overflow:hidden}.stat .meter i{height:100%;display:block;background:var(--blue);border-radius:5px}
+    .condition{margin-top:14px;background:#fff;border:1px solid #dde1da;border-radius:9px;padding:11px}.condition label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:850}.selectrow{display:flex;gap:6px;margin-top:8px}.selectrow select{width:100%;border:1px solid #dde1da;border-radius:7px;padding:8px;background:#fbfcf9;font-size:11px}
+    footer{background:white;border-top:1px solid #dde1da;display:flex;align-items:center;justify-content:space-between;padding:0 16px}.footer-tip{font-size:11px;color:#7c847e}.footer-actions{display:flex;gap:8px}.footer-actions button{border:1px solid #d9ddd6;background:white;border-radius:8px;padding:9px 13px;font-weight:800;font-size:12px}.footer-actions #testBtn{background:var(--blue);color:white;border-color:var(--blue);min-width:132px}
+    .modal-backdrop{position:fixed;inset:0;background:#18202a75;z-index:20;display:none;align-items:center;justify-content:center}.modal-backdrop.open{display:flex}.modal{width:min(600px,92vw);max-height:88vh;overflow:auto;background:white;border-radius:14px;padding:20px;box-shadow:0 20px 70px #0004}.modal h3{margin:0 0 12px}.modal h4{margin:18px 0 8px;font-size:13px}.modal-row{display:flex;justify-content:space-between;border-bottom:1px solid #edf0eb;padding:9px 0;font-size:13px}.fold-guide{padding-left:22px;margin:0;font-size:12px;line-height:1.55}.fold-guide li{padding:7px 0}.guide-step{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:10px}.guide-thumb{display:block;width:68px;height:88px;border:1px solid #dde1da;border-radius:5px;background:#edf0eb}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;flex-wrap:wrap}.modal-actions button{border-radius:8px;border:1px solid #d9ddd6;padding:9px 12px;background:white;font-weight:800}.modal-actions .primary{background:var(--blue)!important;color:white!important;border-color:var(--blue)!important}.export-status{font-size:11px;color:#697169;min-height:16px;margin:8px 0 0}
+    .plane-designer{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin:10px 0 14px}
+    .plane-designer label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin:0 0 5px}
+    .plane-designer input,.plane-designer textarea,.plane-designer select{width:100%;border:1px solid #dde1da;border-radius:6px;padding:7px;background:#fbfcf9;font-size:11px}
+    .plane-designer textarea{min-height:64px;resize:vertical;margin-bottom:6px}
+    .plane-designer .designer-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;margin-top:6px}
+    .plane-designer button{border:1px solid #d9ddd6;border-radius:6px;background:#edf0eb;padding:7px 8px;font-size:10px;font-weight:800}
+    .plane-designer button.primary{background:var(--blue);border-color:var(--blue);color:white}
+    .plane-designer small{display:block;font-size:9px;color:#858d87;margin-top:6px;line-height:1.35}
+    .ai-badge{display:inline-flex;align-items:center;gap:5px;color:#2e65ff;font-size:9px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+    .ai-badge i{width:7px;height:7px;border-radius:50%;background:#61d7d2;box-shadow:0 0 0 3px #61d7d226}
+    .prompt-chips{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0}
+    .prompt-chips button{padding:5px 7px;border:1px solid #dde1da;border-radius:12px;background:#fbfcf9;font-size:9px;font-weight:800}
+    .plane-designer button.generating{opacity:.72;pointer-events:none}
+    .art-studio{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin:10px 0 14px}
+    .art-studio label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin:7px 0 5px}
+    .art-studio input,.art-studio select{width:100%;border:1px solid #dde1da;border-radius:6px;padding:7px;background:#fbfcf9;font-size:11px}
+    .art-swatches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+    .art-swatches input{height:34px;padding:3px}
+    .art-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px}
+    .art-studio button{border:1px solid #d9ddd6;border-radius:6px;background:#edf0eb;padding:7px 8px;font-size:10px;font-weight:800}
+    .art-studio button.primary{background:var(--blue);border-color:var(--blue);color:white}
+    .art-studio small{display:block;font-size:9px;color:#858d87;margin-top:6px;line-height:1.35}
+    .home-backdrop{position:fixed;inset:0;background:#edf0eb;z-index:30;display:none;overflow:auto}
+    .home-backdrop.open{display:block}
+    .home-shell{min-height:100%;padding:24px}
+    .home-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .home-header h2{font-size:22px;letter-spacing:-.5px;text-transform:none;margin:0}
+    .home-header-actions{display:flex;gap:8px}
+    .home-header-actions button,.plane-card button{border:1px solid #d9ddd6;background:white;border-radius:8px;padding:9px 12px;font-weight:800;font-size:12px}
+    .home-header-actions #newPlaneBtn{background:var(--blue);border-color:var(--blue);color:white}
+    .plane-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+    .plane-card{background:white;border:1px solid #dde1da;border-radius:12px;padding:10px;box-shadow:0 8px 24px #18202a0d}
+    .plane-thumbnail{width:100%;height:150px;object-fit:contain;background:#edf0eb;border-radius:8px;display:block}
+    .plane-card h3{font-size:13px;margin:9px 2px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .plane-card time{display:block;font-size:10px;color:#858d87;margin:0 2px 9px}
+    .plane-card-actions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+    .plane-card-actions .open-plane{background:var(--ink);border-color:var(--ink);color:white}
+    .plane-card-actions .delete-plane{color:#a04a42}
+    .empty-home{text-align:center;background:white;border:1px dashed #cfd5cc;border-radius:12px;padding:55px 20px;color:#697169}
+    .competition-panel{background:white;border:1px solid #dde1da;border-radius:12px;padding:14px;margin-bottom:18px}
+    .competition-controls{display:flex;align-items:end;gap:8px;flex-wrap:wrap}
+    .competition-controls label{font-size:10px;font-weight:800;color:#697169}
+    .competition-controls select{display:block;min-width:145px;border:1px solid #dde1da;border-radius:7px;padding:8px;background:#fbfcf9;margin-top:4px}
+    .competition-controls button{border:1px solid var(--blue);background:var(--blue);color:white;border-radius:8px;padding:9px 13px;font-weight:800}
+    .competition-controls button:disabled{opacity:.5;cursor:not-allowed}
+    .competition-controls #tournamentBtn{border-color:var(--ink);background:var(--ink)}
+    #competitionStatus{font-size:11px;color:#697169;margin:9px 0 0}
+    .race-results{display:grid;gap:7px;margin-top:12px}
+    .race-result{display:flex;align-items:center;justify-content:space-between;border:1px solid #dde1da;border-radius:8px;padding:9px 11px;font-size:12px}
+    .race-result.winner{border-color:#e4bb54;background:#fff9e6;font-weight:850}
+    .race-result small{color:#697169;font-size:10px}
+    .plane-select{display:flex;align-items:center;gap:6px;margin:0 2px 8px;font-size:10px;font-weight:750;color:#697169}
+    .bracket-board{display:flex;gap:10px;overflow-x:auto;margin-top:12px;padding:3px 1px 9px}
+    .bracket-round{flex:0 0 200px}
+    .bracket-round h3{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#697169;margin:4px 2px 8px}
+    .bracket-match{background:#fbfcf9;border:1px solid #dde1da;border-radius:8px;padding:8px;margin-bottom:8px;font-size:11px}
+    .bracket-team{padding:5px 6px;border-radius:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bracket-team.won{background:#e5f3ed;color:#237760;font-weight:850}
+    .bracket-match-status{border-top:1px solid #e6e9e3;padding:6px 6px 1px;margin-top:4px;color:#697169;font-size:9px}
+    .race-track{display:block;width:100%;height:280px;margin-top:12px;border-radius:9px;background:#edf0eb}
+    .theme-studio{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin:10px 0 14px}
+    .theme-studio label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin:7px 0 5px}
+    .theme-studio select,.theme-studio input{width:100%;border:1px solid #dde1da;border-radius:6px;padding:7px;background:#fbfcf9;font-size:11px}
+    .theme-studio .theme-colors{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+    .theme-studio input[type=color]{height:34px;padding:3px}
+    .theme-studio small{display:block;font-size:9px;color:#858d87;margin-top:6px;line-height:1.35}
+    .multiplayer-studio{background:white;border:1px solid #dde1da;border-radius:9px;padding:10px;margin:10px 0 14px}
+    .multiplayer-studio label{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:800;margin:7px 0 5px}
+    .multiplayer-studio input{width:100%;border:1px solid #dde1da;border-radius:6px;padding:7px;background:#fbfcf9;font-size:11px}
+    .multiplayer-studio button{width:100%;margin-top:5px;border:1px solid #d9ddd6;border-radius:6px;background:#edf0eb;padding:7px 8px;font-size:10px;font-weight:800}
+    .multiplayer-studio button.primary{background:var(--blue);border-color:var(--blue);color:white}
+    .multiplayer-studio button:disabled{opacity:.5;cursor:not-allowed}
+    .multiplayer-studio small{display:block;font-size:9px;color:#858d87;margin-top:6px;line-height:1.35}
+    body[data-editor-theme="dark"]{--theme-bg:#202831;--theme-panel:#2b3540;--theme-line:#45515d;--theme-ink:#edf2f4;--theme-muted:#aab5bc;--blue:#61d7d2;background:var(--theme-bg);color:var(--theme-ink)}
+    body[data-editor-theme="custom"]{--blue:var(--theme-accent);background:var(--theme-bg);color:var(--theme-ink)}
+    body[data-editor-theme="dark"] header,body[data-editor-theme="dark"] footer,body[data-editor-theme="dark"] aside,body[data-editor-theme="dark"] .modal,body[data-editor-theme="dark"] .plane-card,body[data-editor-theme="dark"] .competition-panel,body[data-editor-theme="dark"] .stat,body[data-editor-theme="dark"] .condition,body[data-editor-theme="dark"] .step,body[data-editor-theme="dark"] .paper-size,body[data-editor-theme="dark"] .crease-tools,body[data-editor-theme="dark"] .plane-designer,body[data-editor-theme="dark"] .art-studio,body[data-editor-theme="dark"] .theme-studio,body[data-editor-theme="dark"] .multiplayer-studio,body[data-editor-theme="dark"] .symmetry-toggle{background:var(--theme-panel);color:var(--theme-ink);border-color:var(--theme-line)}
+    body[data-editor-theme="custom"] header,body[data-editor-theme="custom"] footer,body[data-editor-theme="custom"] aside,body[data-editor-theme="custom"] .modal,body[data-editor-theme="custom"] .plane-card,body[data-editor-theme="custom"] .competition-panel,body[data-editor-theme="custom"] .stat,body[data-editor-theme="custom"] .condition,body[data-editor-theme="custom"] .step,body[data-editor-theme="custom"] .paper-size,body[data-editor-theme="custom"] .crease-tools,body[data-editor-theme="custom"] .plane-designer,body[data-editor-theme="custom"] .art-studio,body[data-editor-theme="custom"] .theme-studio,body[data-editor-theme="custom"] .multiplayer-studio,body[data-editor-theme="custom"] .symmetry-toggle{background:var(--theme-panel);color:var(--theme-ink);border-color:var(--theme-line)}
+    body[data-editor-theme="dark"] .stage,body[data-editor-theme="dark"] .home-backdrop{background:var(--theme-bg)}
+    body[data-editor-theme="custom"] .stage,body[data-editor-theme="custom"] .home-backdrop{background:var(--theme-bg)}
+    body[data-editor-theme="dark"] button:not(.primary),body[data-editor-theme="dark"] input,body[data-editor-theme="dark"] select,body[data-editor-theme="dark"] textarea,body[data-editor-theme="custom"] button:not(.primary),body[data-editor-theme="custom"] input,body[data-editor-theme="custom"] select,body[data-editor-theme="custom"] textarea{background:var(--theme-panel);color:var(--theme-ink);border-color:var(--theme-line)}
+    body[data-editor-theme="dark"] .header-actions button,body[data-editor-theme="dark"] .footer-actions button,body[data-editor-theme="custom"] .header-actions button,body[data-editor-theme="custom"] .footer-actions button{background:var(--theme-panel)}
+    body[data-editor-theme="dark"] .footer-tip,body[data-editor-theme="dark"] .theme-studio small,body[data-editor-theme="dark"] .art-studio small,body[data-editor-theme="dark"] .plane-designer small{color:var(--theme-muted)}
+    body[data-editor-theme="custom"] .footer-tip,body[data-editor-theme="custom"] .theme-studio small,body[data-editor-theme="custom"] .art-studio small,body[data-editor-theme="custom"] .plane-designer small{color:var(--theme-muted)}
+    body[data-editor-theme="dark"] .pill{background:var(--theme-panel);color:var(--theme-ink);border-color:var(--theme-line)}
+    body[data-editor-theme="custom"] .pill{background:var(--theme-panel);color:var(--theme-ink);border-color:var(--theme-line)}
+    @media(max-width:850px){main{grid-template-columns:220px minmax(0,1fr)}.right{display:none}}
+    @media(max-width:620px){main{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,.8fr) minmax(0,1.2fr)}aside{display:none}main>aside:first-child{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:6px;padding:8px;border-right:0;border-bottom:1px solid #dde1da}main>aside:first-child h2,main>aside:first-child .paper-size,main>aside:first-child .step{display:none}.symmetry-toggle,.crease-tools{margin:0}.app{grid-template-rows:58px minmax(0,1fr) 54px}footer{padding:0 6px}.footer-tip{display:none}.footer-actions{gap:4px}.footer-actions button{padding:8px 7px;font-size:11px}.stage-head{gap:4px}.stage-head .pill{padding:6px 8px;font-size:10px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header><div class="brand"><div class="brandmark"></div><div>FOLD LAB<small>PAPER FLIGHT SYSTEM</small></div></div><div class="header-actions"><button id="homeBtn">My Planes</button><button id="resetBtn">Reset</button><button id="saveBtn">Save plane</button></div></header>
+  <main>
+    <aside><h2>Paper & folds</h2>
+      <div class="paper-size"><b>Letter · 8.5 × 11 in</b><span>Portrait paper proportions</span></div>
+      <label class="symmetry-toggle"><input id="symmetryToggle" type="checkbox" checked><span><b>Symmetric folds</b><small>Mirror creases across the center</small></span></label>
+      <div class="crease-tools"><label for="foldType">Fold direction</label><select id="foldType"><option value="valley">Valley fold</option><option value="mountain">Mountain fold</option></select><label for="foldLayer" style="margin-top:10px">Layer to fold</label><select id="foldLayer"><option value="all">All layers</option></select><small>Choose a layer to fold it independently; all layers remains the default.</small><label for="horizontalAt" style="margin-top:10px">Exact horizontal fold (in from top)</label><div class="horizontal-row"><input id="horizontalAt" type="number" min="0" max="11" step="0.01" value="5.50"><button id="setHorizontalBtn">Fold line</button></div><small>Blue = valley; orange = mountain. Choose point-to-point for a custom crease, or click an edge then a target edge or crease.</small><button class="tool-button" id="pointFoldModeBtn" aria-pressed="false">Use point-to-point fold</button><button class="tool-button" id="halfFoldBtn">Fold plane in half</button><button class="tool-button" id="wingModeBtn">Select wing crease</button><label for="wingSide" style="margin-top:10px">Wing side</label><select id="wingSide" disabled><option value="1">Left of line, point 1 → point 2</option><option value="-1">Right of line, point 1 → point 2</option></select><small>The selected side folds as the wing; the opposite side stays as the fuselage.</small><button class="tool-button" id="wingletBtn">Add winglets</button><button class="tool-button" id="squashFoldBtn">Squash fold · whole sheet</button><button class="tool-button" id="waterbombBaseBtn">Waterbomb base · whole sheet</button><small>Each built-in procedure is grouped as one undoable operation.</small><button class="tool-button" id="unfoldBtn">Unfold last fold · keep crease</button><button class="tool-button" id="rotateBtn" title="Rotate the editor view by 90 degrees">Rotate editor view ↻</button></div>
+      <div class="plane-designer">
+        <span class="ai-badge"><i></i> AI plane designer</span>
+        <label for="planeDescription">Describe a plane</label>
+        <textarea id="planeDescription" placeholder="A fast blue dart with narrow wings and a sharp nose"></textarea>
+        <div class="prompt-chips" aria-label="Example prompts">
+          <button type="button" data-prompt="A fast red dart with narrow wings">Fast dart</button>
+          <button type="button" data-prompt="A stable wide-winged blue glider">Wide glider</button>
+          <button type="button" data-prompt="A black stealth stunt plane with orange stripes">Stealth stunt</button>
+        </div>
+        <div class="designer-row">
+          <select id="planePresetSelect" aria-label="Famous paper plane preset">
+            <option value="classic-dart">Classic Dart</option>
+            <option value="nakamura-lock">Nakamura Lock</option>
+            <option value="suzanne">Suzanne · record-flight style</option>
+            <option value="classic-glider">Classic Glider</option>
+          </select>
+          <button type="button" id="usePlanePresetBtn">Load preset</button>
+        </div>
+        <button class="primary" id="generatePlaneBtn" style="width:100%">Interpret & create plane</button>
+        <small id="designerStatus" role="status">Presets make a pointed nose, pre-folded wings, and a tail from the same paper geometry used in flight.</small>
+        <label for="planeImageFile" style="margin-top:10px">Create a plane from an image</label>
+        <input id="planeImageFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <button class="primary" id="generatePlaneFromImageBtn" style="width:100%">Analyze image & make plane</button>
+        <small id="imageDesignerStatus" role="status">The selected image is sent to the AI provider configured on this app’s server.</small>
+      </div>
+      <div class="art-studio">
+        <h2 style="margin:0 0 4px">Plane artwork</h2>
+        <label for="artPattern">Design style</label>
+        <select id="artPattern"><option value="plain">Solid color</option><option value="stripes">Racing stripes</option><option value="chevron">Chevrons</option><option value="spots">Space dots</option><option value="gradient">Sunset gradient</option><option value="camo">Camouflage</option><option value="stealth">Stealth panels</option></select>
+        <label>Paint colors</label>
+        <div class="art-swatches"><input id="artPrimary" type="color" value="#fffef8" title="Main color"><input id="artSecondary" type="color" value="#2e65ff" title="Accent color"><input id="artAccent" type="color" value="#ff7043" title="Highlight color"></div>
+        <button id="randomColorBtn" style="width:100%;margin-top:5px">Random RGB plane color</button>
+        <label for="artText">Plane decal</label>
+        <input id="artText" maxlength="18" placeholder="FLY 01">
+        <label for="artImage">Custom image / logo</label>
+        <input id="artImage" type="file" accept="image/*">
+        <div class="art-grid" style="margin-top:7px"><input id="artTemplateName" placeholder="Artwork name"><button id="applyArtBtn" class="primary">Apply art</button></div>
+        <div class="art-grid" style="margin-top:5px"><select id="artTemplateSelect" aria-label="Saved artwork"></select><button id="loadArtBtn">Load</button></div>
+        <button id="saveArtBtn" style="width:100%;margin-top:5px">Save artwork template</button>
+        <button id="clearArtBtn" style="width:100%;margin-top:5px">Clear custom art</button>
+        <small id="artStatus" role="status">Choose a style, colors, and optional decal or logo.</small>
+      </div>
+      <div class="theme-studio">
+        <h2 style="margin:0 0 4px">Editor theme</h2>
+        <label for="editorThemeSelect">Theme</label>
+        <select id="editorThemeSelect"><option value="light">Light</option><option value="dark">Midnight</option><option value="custom">Custom</option></select>
+        <div class="theme-colors"><label for="themeBackground">Background<input id="themeBackground" type="color" value="#edf0eb"></label><label for="themeAccent">Accent<input id="themeAccent" type="color" value="#2e65ff"></label></div>
+        <small id="themeStatus" role="status">Choose a preset or customize the editor colors.</small>
+      </div>
+      <div class="multiplayer-studio">
+        <h2 style="margin:0 0 4px">Online multiplayer</h2>
+        <button class="primary" id="createRoomBtn">Create online room</button>
+        <label for="roomCodeInput">Join with room code</label>
+        <input id="roomCodeInput" maxlength="10" autocomplete="off" placeholder="10-character room code">
+        <button id="joinRoomBtn">Join room</button>
+        <label for="roomInviteLink">Invite link</label>
+        <input id="roomInviteLink" readonly aria-label="Room invite link" placeholder="Create or join a room first">
+        <button id="copyRoomLinkBtn" disabled>Copy invite link</button>
+        <button id="leaveRoomBtn" disabled>Leave room</button>
+        <small id="multiplayerStatus" role="status">Create or join a room to edit the same plane online.</small>
+      </div>
+      <div class="step active" data-step="0"><div class="num">1</div><div><strong>Select a source edge</strong><span>Click an edge or existing crease</span></div></div>
+      <div class="step" data-step="1"><div class="num">2</div><div><strong>Select a target edge</strong><span>The fold happens on the second click</span></div></div>
+      <div class="step" data-step="2"><div class="num">3</div><div><strong>Choose fold direction</strong><span>Valley or mountain</span></div></div>
+      <div class="step" data-step="3"><div class="num">4</div><div><strong>Try an origami base</strong><span>Squash fold or waterbomb base</span></div></div>
+    </aside>
+    <section class="stage"><div class="stage-head"><div class="pill" id="stepPill">SELECT 2 POINTS</div><div class="pill" id="viewPill">3D FOLD VIEW · LETTER PAPER</div><button type="button" class="pill" id="editorViewBtn" aria-label="Switch to top-down 2D view">Top view</button><button type="button" class="pill" id="orbitBtn" aria-pressed="false">Orbit: off</button><button type="button" class="pill" id="resetViewBtn">Reset 3D view</button></div><canvas id="planeCanvas"></canvas><div class="tooltip" id="tooltip">Click the paper to place crease points · enable Orbit to rotate the 3D view</div></section>
+    <aside class="right"><h2>Flight profile</h2><div class="stat-grid">
+      <div class="stat"><label>Glide ratio</label><b id="glide">—</b><div class="meter"><i id="glideM"></i></div></div>
+      <div class="stat"><label>Stability</label><b id="stability">—</b><div class="meter"><i id="stabM"></i></div></div>
+      <div class="stat"><label>Top speed</label><b id="speed">—</b><div class="meter"><i id="speedM"></i></div></div>
+      <div class="stat"><label>Flight time</label><b id="time">—</b><div class="meter"><i id="timeM"></i></div></div>
+    </div>        <div class="condition"><label>Test conditions</label><div class="selectrow"><select id="wind"><option value="0">Still air</option><option value="1.5">Light headwind · 1.5 m/s</option><option value="4">Strong headwind · 4 m/s</option></select><select id="throw"><option value="0.85">Gentle</option><option value="1" selected>Normal</option><option value="1.15">Hard</option></select></div></div></aside>
+  </main>
+  <footer><div class="footer-tip" id="footerTip">Click an edge, then a target edge or crease to fold that section.</div><div class="footer-actions"><button id="backBtn">← Undo</button><button id="guideBtn" disabled>Folding guide</button><button id="foldBtn" disabled>Cancel edge selection</button><button id="testBtn">Test flight →</button></div></footer>
+</div>
+<div class="modal-backdrop" id="modal"><div class="modal"><h3>Flight test complete</h3><div id="testResults"></div><h4>Fold this design in real life</h4><p>Start with a fresh letter sheet in portrait orientation, front side up. Measurements are from the top-left corner.</p><ol class="fold-guide" id="foldGuide"></ol><p class="export-status" id="exportStatus" role="status"></p><div class="modal-actions"><button id="closeModal">Continue folding</button><button id="downloadGuide">Download instructions PNG</button><button class="primary" id="saveResult">Save result</button></div></div></div>
+<div class="home-backdrop" id="homeScreen" role="dialog" aria-modal="true" aria-label="My saved planes">
+  <div class="home-shell">
+    <div class="home-header">
+      <h2>My Planes</h2>
+      <div class="home-header-actions"><button id="newPlaneBtn">New plane</button><button id="closeHomeBtn">Back to editor</button></div>
+    </div>
+    <section class="competition-panel">
+      <h2 style="margin:0 0 10px">Distance competition</h2>
+      <div class="competition-controls">
+        <label>Wind
+          <select id="raceWind"><option value="0">Still air</option><option value="1.5">Light headwind</option><option value="4">Strong headwind</option></select>
+        </label>
+        <label>Throw
+          <select id="raceThrow"><option value="0.85">Gentle</option><option value="1" selected>Normal</option><option value="1.15">Hard</option></select>
+        </label>
+        <button id="raceBtn" disabled>Race selected planes</button>
+        <button id="tournamentBtn" disabled>Start bracket tournament</button>
+      </div>
+      <p id="competitionStatus" role="status">Select at least two saved planes below. Each plane is compared with the same throw and wind.</p>
+      <canvas class="race-track" id="raceCanvas" role="img" aria-label="Animated plane distance competition" hidden></canvas>
+      <div class="race-results" id="raceResults" aria-live="polite"></div>
+      <div class="bracket-board" id="bracketBoard" aria-label="Tournament bracket"></div>
+    </section>
+    <div class="plane-grid" id="planeGrid"></div>
+  </div>
+</div>
+<script>
+const canvas=document.getElementById('planeCanvas'),ctx=canvas.getContext('2d');
+const PAGE_W=8.5,PAGE_H=11;
+let testMode=false,wingMode=false,wingSide=1,pointFoldMode=false,editorRotation=0,flightStartedAt=0,flightCache=null,selectedPoints=[],selectedEdge=null,creases=[],undoStack=[];
+let editor3D=true,orbitMode=false,cameraYaw=-.48,cameraPitch=.64,cameraZoom=1,orbitPointer=null,projectionCache=null,screenFaces=[];
+let activeRace=null,activeTournament=null,raceAnimationFrame=0;
+let multiplayerSocket=null,pendingRoomAction=null,activeRoomCode=null,roomSyncTimer=0,applyingRemoteState=false,lastSharedState='';
+let customArt={enabled:false,pattern:'plain',primary:'#fffef8',secondary:'#2e65ff',accent:'#ff7043',text:'',image:null,imageSrc:''};
+const INCH_TO_M=.0254,AIR_DENSITY=1.225,GRAVITY=9.81,PAPER_DENSITY=.075;
+let faces=[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false,layer:0}];
+function resize(){const d=devicePixelRatio||1,r=canvas.getBoundingClientRect();canvas.width=r.width*d;canvas.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);draw()} addEventListener('resize',resize);
+function themeColor(name,fallback){return getComputedStyle(document.body).getPropertyValue(name).trim()||fallback}
+function rotatePaperPoint(p,angle=editorRotation){const radians=angle*Math.PI/180,dx=p.x-PAGE_W/2,dy=p.y-PAGE_H/2;return{x:PAGE_W/2+dx*Math.cos(radians)-dy*Math.sin(radians),y:PAGE_H/2+dx*Math.sin(radians)+dy*Math.cos(radians)}}
+function paperMetrics(w,h){
+  const page=[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],points=[...page,...faces.flatMap(f=>f.points)].map(p=>rotatePaperPoint(p));
+  const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys),width=maxX-minX,height=maxY-minY;
+  const scale=Math.min((w-72)/width,(h-100)/height,58);return{scale,minX,minY,width,height,x:(w-width*scale)/2,y:(h-height*scale)/2}
+}
+function mapPaperPoint(p,m){const q=rotatePaperPoint(p);return{x:m.x+(q.x-m.minX)*m.scale,y:m.y+(q.y-m.minY)*m.scale}}
+function viewToPaperPoint(x,y,m){const q={x:(x-m.x)/m.scale+m.minX,y:(y-m.y)/m.scale+m.minY};return rotatePaperPoint(q,(360-editorRotation)%360)}
+function planeStats(){
+  const points=faces.flatMap(f=>f.points),xs=points.map(p=>p.x),ys=points.map(p=>p.y);
+  const width=Math.max(.1,Math.max(...xs)-Math.min(...xs)),length=Math.max(.1,Math.max(...ys)-Math.min(...ys));
+  const aspect=length/width,foldCount=creases.length,wingFolds=creases.filter(c=>c.kind==='wing'&&!c.paired).length,wingletFolds=creases.filter(c=>c.kind==='winglet'&&!c.paired).length,tailFolds=creases.filter(c=>c.kind==='tail').length;
+  const centered=1-Math.min(1,Math.abs((Math.min(...xs)+Math.max(...xs))/2-PAGE_W/2)/(PAGE_W/2));
+  const matched=creases.filter(c=>creases.some(other=>sameCrease(mirrorCrease(c),other))).length;
+  const foldSymmetry=foldCount?matched/foldCount:.5;
+  const stability=Math.max(0,Math.min(100,35+25*centered+20*foldSymmetry+Math.min(wingFolds,2)*5+Math.min(wingletFolds,2)*2));
+  const paperArea=PAGE_W*PAGE_H*INCH_TO_M*INCH_TO_M,mass=paperArea*PAPER_DENSITY,grid=32;
+  let occupied=0;for(let row=0;row<grid;row++)for(let col=0;col<grid;col++){const p={x:(col+.5)*PAGE_W/grid,y:(row+.5)*PAGE_H/grid};if(faces.some(f=>pointInPolygon(p,f.points)))occupied++}
+  const projectedArea=paperArea*occupied/(grid*grid),wingArea=Math.max(.0015,projectedArea*.25),span=width*INCH_TO_M*(creases.some(c=>c.kind==='center')?2:1);
+  return{stability,aspect,mass,width,length,wingArea,projectedArea,span,paperArea,wingFolds,wingletFolds,tailFolds};
+}
+function simulateFlight(wind,throwV,stats){
+  const launchSpeed=6+(throwV-.85)*20,launchAngle=8*Math.PI/180,trimAngle=(1.5+(100-stats.stability)*.012)*Math.PI/180;
+  const aspectRatio=Math.max(1.5,stats.span*stats.span/stats.wingArea),inducedFactor=1/(Math.PI*aspectRatio*.72);
+  const cleanDrag=.075+stats.wingFolds*.008+stats.wingletFolds*.003+(creases.some(c=>c.kind==='center')?.008:0),dt=.01,maxTime=20;
+  const trajectory=[];let x=0,y=1.5,vx=launchSpeed*Math.cos(launchAngle),vy=launchSpeed*Math.sin(launchAngle),pitch=launchAngle+trimAngle,pitchRate=0,time=0,maxAltitude=y,maxSpeed=launchSpeed,previousY=y;
+  trajectory.push({time,x,y,pitch});
+  for(let i=0;i<maxTime/dt;i++){
+    const relativeX=vx+wind,relativeY=vy,airSpeed=Math.max(.01,Math.hypot(relativeX,relativeY)),flowAngle=Math.atan2(relativeY,relativeX);
+    const alpha=Math.atan2(Math.sin(pitch-flowAngle),Math.cos(pitch-flowAngle)),absAlpha=Math.abs(alpha),stallAngle=15*Math.PI/180;
+    let liftCoefficient=Math.max(-.35,Math.min(1.05,.08+3.5*alpha));
+    if(absAlpha>stallAngle)liftCoefficient*=Math.max(.15,1-(absAlpha-stallAngle)/(25*Math.PI/180));
+    const dragCoefficient=cleanDrag+inducedFactor*liftCoefficient*liftCoefficient+(absAlpha>stallAngle ? .12 : 0);
+    const dynamicPressure=.5*AIR_DENSITY*airSpeed*airSpeed;
+    const lift=dynamicPressure*stats.wingArea*liftCoefficient,drag=dynamicPressure*stats.wingArea*dragCoefficient;
+    const ux=relativeX/airSpeed,uy=relativeY/airSpeed;
+    const ax=(-drag*ux-lift*uy)/stats.mass,ay=(-drag*uy+lift*ux)/stats.mass-GRAVITY;
+    const pitchTarget=flowAngle+trimAngle,stabilityFactor=.65+stats.stability/100*.7;
+    const pitchAcceleration=4*stabilityFactor*stabilityFactor*(pitchTarget-pitch)-4*stabilityFactor*pitchRate;
+    pitchRate+=pitchAcceleration*dt;pitch+=pitchRate*dt;
+    vx+=ax*dt;vy+=ay*dt;x+=vx*dt;y+=vy*dt;time+=dt;
+    maxAltitude=Math.max(maxAltitude,y);maxSpeed=Math.max(maxSpeed,Math.hypot(vx,vy));
+    if(y<=0){const fraction=previousY/(previousY-y);x-=vx*dt*(1-fraction);time-=dt*(1-fraction);y=0;trajectory.push({time,x,y,pitch});break}
+    if(i%5===4)trajectory.push({time,x,y,pitch});
+    previousY=y;
+  }
+  if(trajectory[trajectory.length-1].time<time)trajectory.push({time,x,y,pitch});
+  const alphaForGlide=trimAngle,cl=Math.max(.01,.08+3.5*alphaForGlide),cd=cleanDrag+inducedFactor*cl*cl;
+  return{distance:Math.max(0,x),time,maxAltitude,maxSpeed,launchSpeed,glideRatio:cl/cd,trajectory}
+}
+function flightEstimate(){
+  const stats=planeStats(),wind=+document.getElementById('wind').value,throwV=+document.getElementById('throw').value;
+  const signature=JSON.stringify([wind,throwV,stats,creases.map(c=>[c.a.x,c.a.y,c.b.x,c.b.y,c.type,c.kind,c.paired,c.folded])]);
+  if(!flightCache||flightCache.signature!==signature)flightCache={signature,...simulateFlight(wind,throwV,stats),stats,wind,throwV};
+  return flightCache
+}
+function setStats(){const flight=flightEstimate(),s=flight.stats;document.getElementById('glide').innerHTML=flight.glideRatio.toFixed(1)+'<small> :1</small>';document.getElementById('stability').innerHTML=Math.round(s.stability)+'<small>/100</small>';document.getElementById('speed').innerHTML=flight.maxSpeed.toFixed(1)+'<small> m/s</small>';document.getElementById('time').innerHTML=flight.time.toFixed(1)+'<small> s</small>';document.getElementById('glideM').style.width=Math.min(100,flight.glideRatio*10)+'%';document.getElementById('stabM').style.width=s.stability+'%';document.getElementById('speedM').style.width=Math.min(100,flight.maxSpeed*5)+'%';document.getElementById('timeM').style.width=Math.min(100,flight.time*10)+'%';if(!testMode)document.getElementById('footerTip').textContent=`Estimated flight: ${(flight.distance*3.28084).toFixed(0)} ft · model assumes 75 gsm paper and a ${flight.launchSpeed.toFixed(0)} m/s throw.`}
+function tracePolygon(points,m){ctx.beginPath();points.forEach((p,i)=>{const q=mapPaperPoint(p,m);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y)});ctx.closePath()}
+function drawFaceArtwork(face,m){
+  if(!customArt.enabled)return false;
+  tracePolygon(face.points,m);
+  ctx.save();
+  ctx.clip();
+  const bounds=face.points.map(p=>mapPaperPoint(p,m));
+  const xs=bounds.map(p=>p.x),ys=bounds.map(p=>p.y);
+  const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  ctx.fillStyle=customArt.primary;
+  ctx.fillRect(minX,minY,maxX-minX,maxY-minY);
+  if(customArt.pattern==='stripes'){
+    ctx.strokeStyle=customArt.secondary;ctx.lineWidth=Math.max(5,(maxX-minX)*.07);
+    for(let x=minX-150;x<maxX+150;x+=24){ctx.beginPath();ctx.moveTo(x,minY);ctx.lineTo(x+(maxY-minY)*.35,maxY);ctx.stroke()}
+  }else if(customArt.pattern==='chevron'){
+    ctx.strokeStyle=customArt.accent;ctx.lineWidth=7;
+    for(let y=minY-20;y<maxY+40;y+=26){ctx.beginPath();ctx.moveTo(minX,y+15);ctx.lineTo((minX+maxX)/2,y);ctx.lineTo(maxX,y+15);ctx.stroke()}
+  }else if(customArt.pattern==='spots'){
+    ctx.fillStyle=customArt.accent;
+    for(let y=minY+12;y<maxY;y+=28)for(let x=minX+12;x<maxX;x+=28){ctx.beginPath();ctx.arc(x+((Math.round(y)%2)*7),y,5,0,Math.PI*2);ctx.fill()}
+  }else if(customArt.pattern==='gradient'){
+    const gradient=ctx.createLinearGradient(minX,minY,maxX,maxY);gradient.addColorStop(0,customArt.primary);gradient.addColorStop(.55,customArt.secondary);gradient.addColorStop(1,customArt.accent);ctx.fillStyle=gradient;ctx.fillRect(minX,minY,maxX-minX,maxY-minY);
+  }else if(customArt.pattern==='camo'){
+    const colors=[customArt.primary,customArt.secondary,customArt.accent];
+    colors.forEach((color,index)=>{ctx.fillStyle=color;for(let i=-2;i<12;i++){const x=minX+i*(22+index*7)+(index*13)%31,y=minY+((i*29+index*37)%Math.max(30,maxY-minY));ctx.beginPath();ctx.ellipse(x,y,18+index*3,10+index*2,index*.8,0,Math.PI*2);ctx.fill()}});
+  }else if(customArt.pattern==='stealth'){
+    ctx.fillStyle=customArt.secondary;ctx.globalAlpha=.75;
+    for(let y=minY;y<maxY;y+=18)for(let x=minX+(y%36);x<maxX;x+=36){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+24,y+7);ctx.lineTo(x+10,y+16);ctx.closePath();ctx.fill()}
+    ctx.globalAlpha=1;
+  }
+  if(customArt.image){
+    const size=Math.min(maxX-minX,maxY-minY)*.42,x=(minX+maxX)/2-size/2,y=(minY+maxY)/2-size/2;
+    ctx.drawImage(customArt.image,x,y,size,size);
+  }
+  if(customArt.text){
+    ctx.fillStyle=customArt.accent;ctx.strokeStyle=customArt.primary;ctx.lineWidth=3;ctx.font='900 14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.strokeText(customArt.text,(minX+maxX)/2,(minY+maxY)/2);ctx.fillText(customArt.text,(minX+maxX)/2,(minY+maxY)/2);
+  }
+  ctx.restore();
+  return true;
+}
+function create3DProjection(w,h){
+  const yaw=cameraYaw+editorRotation*Math.PI/180,pitch=cameraPitch,cosYaw=Math.cos(yaw),sinYaw=Math.sin(yaw),cosPitch=Math.cos(pitch),sinPitch=Math.sin(pitch);
+  const transform=(point,z=0)=>{
+    const dx=point.x-PAGE_W/2,dy=point.y-PAGE_H/2,x=dx*cosYaw-dy*sinYaw,y=dx*sinYaw+dy*cosYaw;
+    return{x,y:y*cosPitch-z*sinPitch,depth:y*sinPitch+z*cosPitch};
+  };
+  const bounds=[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H},...faces.flatMap(face=>face.points)].flatMap(point=>{
+    const layer=faces.filter(face=>face.points.some(p=>Math.hypot(p.x-point.x,p.y-point.y)<1e-6)).reduce((max,face)=>Math.max(max,face.layer||0),0);
+    return[transform(point),transform(point,layer*.035)];
+  });
+  const xs=bounds.map(point=>point.x),ys=bounds.map(point=>point.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const scale=Math.max(4,Math.min(Math.max(40,w-80)/Math.max(.1,maxX-minX),Math.max(50,h-120)/Math.max(.1,maxY-minY),58)*cameraZoom);
+  const offsetX=(w-(minX+maxX)*scale)/2,offsetY=(h+(minY+maxY)*scale)/2;
+  const project=(point,z=0)=>{
+    const transformed=transform(point,z);
+    return{x:offsetX+transformed.x*scale,y:offsetY-transformed.y*scale,depth:transformed.depth};
+  };
+  const unproject=(x,y,z=0)=>{
+    const viewX=(x-offsetX)/scale,viewY=(offsetY-y)/scale,rotatedY=(viewY+z*sinPitch)/cosPitch;
+    return{x:PAGE_W/2+viewX*cosYaw+rotatedY*sinYaw,y:PAGE_H/2-viewX*sinYaw+rotatedY*cosYaw};
+  };
+  return{project,unproject,scale,offsetX,offsetY,yaw,pitch};
+}
+function traceScreenPolygon(points){
+  ctx.beginPath();points.forEach((point,index)=>{if(index===0)ctx.moveTo(point.x,point.y);else ctx.lineTo(point.x,point.y)});ctx.closePath();
+}
+function draw3DFaceArtwork(face,points){
+  if(!customArt.enabled)return false;
+  const xs=points.map(point=>point.x),ys=points.map(point=>point.y),left=Math.min(...xs),right=Math.max(...xs),top=Math.min(...ys),bottom=Math.max(...ys);
+  traceScreenPolygon(points);ctx.save();ctx.clip();ctx.fillStyle=customArt.primary;ctx.fillRect(left,top,right-left,bottom-top);
+  if(customArt.pattern==='stripes'){
+    ctx.strokeStyle=customArt.secondary;ctx.lineWidth=2;
+    for(let x=left-30;x<right+30;x+=8){ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+(bottom-top)*.5,bottom);ctx.stroke()}
+  }else if(customArt.pattern==='chevron'){
+    ctx.strokeStyle=customArt.accent;ctx.lineWidth=2;
+    for(let y=top-8;y<bottom+12;y+=10){ctx.beginPath();ctx.moveTo(left,y+5);ctx.lineTo((left+right)/2,y);ctx.lineTo(right,y+5);ctx.stroke()}
+  }else if(customArt.pattern==='spots'){
+    ctx.fillStyle=customArt.accent;
+    for(let y=top+4;y<bottom;y+=9)for(let x=left+4;x<right;x+=9){ctx.beginPath();ctx.arc(x,y,1.8,0,Math.PI*2);ctx.fill()}
+  }else if(customArt.pattern==='gradient'){
+    const gradient=ctx.createLinearGradient(left,top,right,bottom);gradient.addColorStop(0,customArt.primary);gradient.addColorStop(.55,customArt.secondary);gradient.addColorStop(1,customArt.accent);ctx.fillStyle=gradient;ctx.fillRect(left,top,right-left,bottom-top);
+  }else if(customArt.pattern==='camo'||customArt.pattern==='stealth'){
+    ctx.fillStyle=customArt.secondary;ctx.globalAlpha=.75;
+    for(let y=top-5;y<bottom+8;y+=9)for(let x=left-5;x<right+8;x+=13){ctx.beginPath();if(customArt.pattern==='camo')ctx.ellipse(x,y,5,2,Math.PI/4,0,Math.PI*2);else{ctx.moveTo(x,y);ctx.lineTo(x+8,y+2);ctx.lineTo(x+3,y+7);ctx.closePath()}ctx.fill()}
+    ctx.globalAlpha=1;
+  }
+  if(customArt.image){const size=Math.min(right-left,bottom-top)*.42;ctx.drawImage(customArt.image,(left+right-size)/2,(top+bottom-size)/2,size,size)}
+  if(customArt.text){ctx.fillStyle=customArt.accent;ctx.font=`900 ${Math.max(8,Math.min(14,(right-left)*.13))}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(customArt.text,(left+right)/2,(top+bottom)/2)}
+  ctx.restore();return true
+}
+function draw3DEditor(w,h){
+  const projection=create3DProjection(w,h);projectionCache=projection;
+  ctx.fillStyle=themeColor('--theme-bg','#edf0eb');ctx.fillRect(0,0,w,h);ctx.strokeStyle=themeColor('--theme-line','#dfe4dc');ctx.lineWidth=.7;
+  for(let x=-2;x<=10;x++){const a=projection.project({x,y:-3},-.04),b=projection.project({x,y:14},-.04);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+  for(let y=-3;y<=14;y++){const a=projection.project({x:-2,y},-.04),b=projection.project({x:10,y},-.04);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+  const rendered=faces.map(face=>{
+    const z=(face.layer||0)*.035,points=face.points.map(point=>projection.project(point,z));
+    return{face,z,points,depth:points.reduce((sum,point)=>sum+point.depth/points.length,0)};
+  }).sort((a,b)=>a.depth-b.depth);
+  screenFaces=[...rendered].reverse();
+  rendered.forEach(({face,z,points})=>{
+    if(z>0){
+      const lower=face.points.map(point=>projection.project(point,Math.max(0,z-.018)));
+      ctx.fillStyle='#c9ccc5';ctx.strokeStyle='#aab1aa';ctx.lineWidth=.5;
+      points.forEach((point,index)=>{const next=(index+1)%points.length;ctx.beginPath();ctx.moveTo(point.x,point.y);ctx.lineTo(points[next].x,points[next].y);ctx.lineTo(lower[next].x,lower[next].y);ctx.lineTo(lower[index].x,lower[index].y);ctx.closePath();ctx.fill();ctx.stroke()});
+    }
+    traceScreenPolygon(points);
+    ctx.fillStyle=face.folded?(face.foldType==='mountain'?'#f8e6db':'#e5edfc'):'#fffef8';
+    ctx.shadowColor='#18202a22';ctx.shadowBlur=6;ctx.shadowOffsetY=3;ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    if(!draw3DFaceArtwork(face,points)){traceScreenPolygon(points);ctx.fill()}
+    traceScreenPolygon(points);ctx.strokeStyle='#59635c';ctx.lineWidth=.85;ctx.stroke();
+  });
+  if(wingMode&&selectedPoints.length===2){
+    ctx.save();ctx.fillStyle='#ffcc6d';ctx.globalAlpha=.3;
+    faces.forEach(face=>{const side=clipPolygon(face.points,selectedPoints[0],selectedPoints[1],wingSide);if(polygonArea(side)>.001){traceScreenPolygon(side.map(point=>projection.project(point,(face.layer||0)*.035+.002)));ctx.fill()}});
+    ctx.restore();
+  }
+  if(document.getElementById('symmetryToggle').checked){
+    const a=projection.project({x:PAGE_W/2,y:0},.02),b=projection.project({x:PAGE_W/2,y:PAGE_H},.02);
+    ctx.save();ctx.setLineDash([2,5]);ctx.strokeStyle='#61bcb8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore();
+  }
+  ctx.save();ctx.setLineDash([5,4]);ctx.lineWidth=1.5;
+  creases.forEach(line=>{const[a,b]=creaseExtent(line);const z=(line.layer||0)*.035+.006,pa=projection.project(a,z),pb=projection.project(b,z);ctx.strokeStyle=line.type==='mountain'?'#ff7043':'#2e65ff';ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke()});
+  if(selectedPoints.length===2){const a=projection.project(selectedPoints[0],.02),b=projection.project(selectedPoints[1],.02);ctx.strokeStyle=document.getElementById('foldType').value==='mountain'?'#ff7043':'#2e65ff';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}
+  ctx.restore();
+  selectedPoints.forEach((point,index)=>{const mapped=projection.project(point,.03);ctx.beginPath();ctx.arc(mapped.x,mapped.y,7,0,Math.PI*2);ctx.fillStyle='#2e65ff';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(index+1),mapped.x,mapped.y)});
+}
+function creaseExtent(line,shape=faces){
+  const points=[];
+  shape.forEach(f=>f.points.forEach((p,i)=>{const q=f.points[(i+1)%f.points.length],dp=signedSide(p,line.a,line.b),dq=signedSide(q,line.a,line.b);if(Math.abs(dp)<1e-8)points.push(p);if(dp*dq<0){const t=dp/(dp-dq);points.push({x:p.x+t*(q.x-p.x),y:p.y+t*(q.y-p.y)})}}));
+  const unique=points.filter((p,i)=>points.findIndex(q=>Math.hypot(p.x-q.x,p.y-q.y)<1e-6)===i);
+  if(unique.length<2)return[line.a,line.b];
+  let pair=[unique[0],unique[1]],max=0;for(let i=0;i<unique.length;i++)for(let j=i+1;j<unique.length;j++){const d=(unique[i].x-unique[j].x)**2+(unique[i].y-unique[j].y)**2;if(d>max){max=d;pair=[unique[i],unique[j]]}}
+  return pair
+}
+function drawCrease(line,m){const [a,b]=creaseExtent(line),pa=mapPaperPoint(a,m),pb=mapPaperPoint(b,m);ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke()}
+function draw(){
+  const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h)return;
+  ctx.clearRect(0,0,w,h);ctx.fillStyle=themeColor('--theme-bg','#edf0eb');ctx.fillRect(0,0,w,h);
+  if(testMode){drawTest(w,h);return}
+  if(editor3D){draw3DEditor(w,h);return}
+  ctx.strokeStyle=themeColor('--theme-line','#dfe4dc');ctx.lineWidth=1;for(let x=0;x<w;x+=32){ctx.beginPath();ctx.moveTo(x,54);ctx.lineTo(x,h);ctx.stroke()}for(let y=54;y<h;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+  document.getElementById('tooltip').style.display='block';
+  const m=paperMetrics(w,h);
+  ctx.save();ctx.shadowColor='#18202a24';ctx.shadowBlur=18;ctx.shadowOffsetY=6;
+  faces.filter(f=>!f.folded).forEach(f=>{tracePolygon(f.points,m);ctx.fillStyle='#fffef8';ctx.fill();if(drawFaceArtwork(f,m))ctx.fill()});
+  ctx.restore();
+  faces.filter(f=>f.folded).forEach(f=>{tracePolygon(f.points,m);ctx.fillStyle=f.foldType==='mountain'?'#f8e6db':'#e5edfc';ctx.fill();if(!drawFaceArtwork(f,m)){ctx.strokeStyle='#aab1aa';ctx.lineWidth=1;ctx.stroke()}});
+  faces.filter(f=>!f.folded).forEach(f=>{tracePolygon(f.points,m);ctx.strokeStyle='#aab1aa';ctx.lineWidth=1.2;ctx.stroke()});
+  if(wingMode&&selectedPoints.length===2){ctx.save();ctx.fillStyle='#ffcc6d';ctx.globalAlpha=.28;faces.forEach(f=>{const side=clipPolygon(f.points,selectedPoints[0],selectedPoints[1],wingSide);if(polygonArea(side)>.001){tracePolygon(side,m);ctx.fill()}});ctx.restore()}
+  if(document.getElementById('symmetryToggle').checked){const a=mapPaperPoint({x:PAGE_W/2,y:0},m),b=mapPaperPoint({x:PAGE_W/2,y:PAGE_H},m);ctx.save();ctx.setLineDash([2,5]);ctx.strokeStyle='#61d7d2';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.restore()}
+  ctx.save();ctx.lineWidth=1.5;
+  creases.forEach(line=>{ctx.strokeStyle=line.type==='mountain'?'#ff7043':'#2e65ff';ctx.setLineDash(line.type==='mountain'?[7,3,1,3]:[5,5]);drawCrease(line,m)});
+  if(selectedPoints.length===2){const line={a:selectedPoints[0],b:selectedPoints[1]};ctx.strokeStyle=document.getElementById('foldType').value==='mountain'?'#ff7043':'#2e65ff';ctx.setLineDash([5,3]);ctx.lineWidth=2;drawCrease(line,m);if(document.getElementById('symmetryToggle').checked&&!sameCrease(line,mirrorCrease(line))){ctx.strokeStyle='#61bcb8';drawCrease(mirrorCrease(line),m)}}
+  ctx.restore();
+  selectedPoints.forEach((p,i)=>{const q=mapPaperPoint(p,m);ctx.beginPath();ctx.arc(q.x,q.y,7,0,Math.PI*2);ctx.fillStyle='#2e65ff';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#fff';ctx.stroke();ctx.fillStyle='#fff';ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),q.x,q.y)});
+}
+function drawTest(w,h){ctx.clearRect(0,0,w,h);ctx.fillStyle=themeColor('--theme-bg','#edf0eb');ctx.fillRect(0,0,w,h);ctx.strokeStyle=themeColor('--theme-line','#dfe4dc');for(let x=0;x<w;x+=32){ctx.beginPath();ctx.moveTo(x,54);ctx.lineTo(x,h);ctx.stroke()}for(let y=54;y<h;y+=32){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+  ctx.fillStyle='#aeb6ae';ctx.fillRect(0,h-50,w,50);ctx.fillStyle='#8e998f';ctx.fillRect(0,h-52,w,2);
+  const flight=flightEstimate(),{distance,time,trajectory,maxAltitude}=flight;
+  document.getElementById('stepPill').textContent=`SIMULATED RANGE · ${Math.round(distance*3.28084)} FT`;
+  document.getElementById('viewPill').textContent='FLIGHT TEST';
+  const elapsed=Math.max(0,(performance.now()-flightStartedAt)/1000),sampleTime=Math.min(elapsed,time),path=trajectory;
+  let end=path.findIndex(p=>p.time>=sampleTime);if(end<0)end=path.length-1;
+  const before=path[Math.max(0,end-1)],after=path[end],fraction=after.time===before.time?0:(sampleTime-before.time)/(after.time-before.time);
+  const current={x:before.x+(after.x-before.x)*fraction,y:before.y+(after.y-before.y)*fraction,pitch:before.pitch+(after.pitch-before.pitch)*fraction};
+  const xScale=Math.min(35,(w-90)/Math.max(1,distance)),yScale=Math.min(48,(h*.4)/Math.max(1,maxAltitude)),ground=h-52,toCanvas=p=>({x:42+p.x*xScale,y:ground-p.y*yScale});
+  ctx.beginPath();path.filter(p=>p.time<=sampleTime).forEach((p,i)=>{const q=toCanvas(p);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y)});const position=toCanvas(current);ctx.lineTo(position.x,position.y);ctx.strokeStyle='#2e65ff';ctx.lineWidth=2;ctx.stroke();
+  drawFlightPlane(position.x,position.y,-current.pitch)
+}
+function drawFlightPlane(x,y,pitch){
+  const points=faces.flatMap(f=>f.points),xs=points.map(v=>v.x),ys=points.map(v=>v.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const scale=Math.min(100/Math.max(.1,maxY-minY),40/Math.max(.1,maxX-minX));
+  ctx.save();ctx.translate(x-(maxY-minY)*scale/2,y);ctx.rotate(pitch);
+  const project=p=>({x:(maxY-p.y)*scale,y:(p.x-(minX+maxX)/2)*scale});
+  const projectedFaces=faces.map(face=>({face,points:face.points.map(project),area:polygonArea(face.points)}));
+  const largestFace=projectedFaces.reduce((largest,item)=>item.area>largest.area?item:largest,projectedFaces[0]);
+  projectedFaces.forEach(({face,points:mapped})=>{
+    const facePath=()=>{
+      ctx.beginPath();mapped.forEach((point,index)=>{if(index===0)ctx.moveTo(point.x,point.y);else ctx.lineTo(point.x,point.y)});ctx.closePath();
+    };
+    const faceXs=mapped.map(point=>point.x),faceYs=mapped.map(point=>point.y),left=Math.min(...faceXs),right=Math.max(...faceXs),top=Math.min(...faceYs),bottom=Math.max(...faceYs);
+    ctx.save();facePath();ctx.clip();
+    ctx.fillStyle=customArt.enabled?customArt.primary:(face.folded?(face.foldType==='mountain'?'#f8e6db':'#dce8fb'):'#fffef8');ctx.fillRect(left,top,right-left,bottom-top);
+    if(customArt.enabled){
+      if(customArt.pattern==='stripes'){
+        ctx.strokeStyle=customArt.secondary;ctx.lineWidth=2;
+        for(let x=left-30;x<right+30;x+=8){ctx.beginPath();ctx.moveTo(x,top);ctx.lineTo(x+(bottom-top)*.5,bottom);ctx.stroke()}
+      }else if(customArt.pattern==='chevron'){
+        ctx.strokeStyle=customArt.accent;ctx.lineWidth=2;
+        for(let yy=top-8;yy<bottom+12;yy+=10){ctx.beginPath();ctx.moveTo(left,yy+5);ctx.lineTo((left+right)/2,yy);ctx.lineTo(right,yy+5);ctx.stroke()}
+      }else if(customArt.pattern==='spots'){
+        ctx.fillStyle=customArt.accent;
+        for(let yy=top+4;yy<bottom;yy+=9)for(let xx=left+4;xx<right;xx+=9){ctx.beginPath();ctx.arc(xx,yy,1.8,0,Math.PI*2);ctx.fill()}
+      }else if(customArt.pattern==='gradient'){
+        const gradient=ctx.createLinearGradient(left,top,right,bottom);gradient.addColorStop(0,customArt.primary);gradient.addColorStop(.55,customArt.secondary);gradient.addColorStop(1,customArt.accent);ctx.fillStyle=gradient;ctx.fillRect(left,top,right-left,bottom-top)
+      }else if(customArt.pattern==='camo'||customArt.pattern==='stealth'){
+        ctx.fillStyle=customArt.secondary;ctx.globalAlpha=.75;
+        for(let yy=top-5;yy<bottom+8;yy+=9)for(let xx=left-5;xx<right+8;xx+=13){ctx.beginPath();if(customArt.pattern==='camo')ctx.ellipse(xx,yy,5,2,Math.PI/4,0,Math.PI*2);else{ctx.moveTo(xx,yy);ctx.lineTo(xx+8,yy+2);ctx.lineTo(xx+3,yy+7);ctx.closePath()}ctx.fill()}
+        ctx.globalAlpha=1;
+      }
+      if(customArt.image&&face===largestFace.face){const size=Math.min(right-left,bottom-top)*.42;ctx.drawImage(customArt.image,(left+right-size)/2,(top+bottom-size)/2,size,size)}
+    }
+    ctx.restore();facePath();ctx.strokeStyle='#34434a';ctx.lineWidth=.8;ctx.stroke();
+  });
+  if(customArt.enabled&&customArt.text&&largestFace){
+    const center=largestFace.points.reduce((sum,point)=>({x:sum.x+point.x/largestFace.points.length,y:sum.y+point.y/largestFace.points.length}),{x:0,y:0}),label=project(center);
+    ctx.fillStyle=customArt.accent;ctx.font='900 6px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(customArt.text,label.x,label.y);
+  }
+  ctx.restore()
+}
+function pointInPolygon(p,poly){let inside=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){const a=poly[i],b=poly[j];if((a.y>p.y)!==(b.y>p.y)&&p.x<(b.x-a.x)*(p.y-a.y)/(b.y-a.y)+a.x)inside=!inside}return inside}
+function canvasPoint(e){
+  const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
+  if(!editor3D)return viewToPaperPoint(x,y,paperMetrics(r.width,r.height));
+  if(!projectionCache)return null;
+  const screenPoint={x,y},hit=screenFaces.find(item=>pointInPolygon(screenPoint,item.points)||item.points.some((a,index)=>pointSegmentDistance(screenPoint,a,item.points[(index+1)%item.points.length])<5));
+  return hit?projectionCache.unproject(x,y,hit.z):null;
+}
+function pointSegmentDistance(p,a,b){
+  const dx=b.x-a.x,dy=b.y-a.y,length=dx*dx+dy*dy,t=length?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/length)):0;
+  return Math.hypot(p.x-(a.x+t*dx),p.y-(a.y+t*dy))
+}
+function foldEdgeCandidates(includeCreases){
+  const candidates=new Map(),keyPoint=p=>`${p.x.toFixed(3)},${p.y.toFixed(3)}`,keyFor=(a,b)=>[keyPoint(a),keyPoint(b)].sort().join('|');
+  faces.forEach(face=>face.points.forEach((a,index)=>{
+    const b=face.points[(index+1)%face.points.length],key=keyFor(a,b);
+    if(Math.hypot(a.x-b.x,a.y-b.y)>.05){
+      const current=candidates.get(key);
+      if(!current||(face.layer||0)>(current.layer||0))candidates.set(key,{a:{...a},b:{...b},kind:'edge',layer:face.layer||0});
+    }
+  }));
+  if(includeCreases)creases.forEach(crease=>{
+    const[a,b]=creaseExtent(crease);
+    if(Math.hypot(a.x-b.x,a.y-b.y)>.05)candidates.set(keyFor(a,b),{a:{...a},b:{...b},kind:'crease',layer:crease.layer||0});
+  });
+  return[...candidates.values()];
+}
+function nearestFoldEdge(event,includeCreases){
+  const rect=canvas.getBoundingClientRect(),screenPoint={x:event.clientX-rect.left,y:event.clientY-rect.top};
+  if(!editor3D&&!rect.width)return null;
+  const metrics=editor3D?null:paperMetrics(rect.width,rect.height),project=editor3D
+    ?(point,z)=>projectionCache.project(point,z||0)
+    :(point)=>mapPaperPoint(point,metrics);
+  const threshold=11,candidates=foldEdgeCandidates(includeCreases).map(edge=>{
+    const z=(edge.layer||0)*.035+(editor3D&&edge.kind==='crease'?0.006:0),a=project(edge.a,z),b=project(edge.b,z),dx=b.x-a.x,dy=b.y-a.y,denominator=dx*dx+dy*dy;
+    const t=denominator?Math.max(0,Math.min(1,((screenPoint.x-a.x)*dx+(screenPoint.y-a.y)*dy)/denominator)):0;
+    const x=a.x+t*dx,y=a.y+t*dy,distance=Math.hypot(screenPoint.x-x,screenPoint.y-y);
+    return{...edge,point:{x:edge.a.x+t*(edge.b.x-edge.a.x),y:edge.a.y+t*(edge.b.y-edge.a.y)},distance}
+  }).filter(edge=>edge.distance<=threshold),nearestEdge=candidates.filter(edge=>edge.kind==='edge').sort((a,b)=>a.distance-b.distance)[0],nearestCrease=candidates.filter(edge=>edge.kind==='crease').sort((a,b)=>a.distance-b.distance)[0];
+  if(nearestCrease&&(!nearestEdge||nearestCrease.distance<=nearestEdge.distance+3))return nearestCrease;
+  return nearestEdge||nearestCrease||null
+}
+function edgeFoldLine(source,target){
+  const sourceDx=source.b.x-source.a.x,sourceDy=source.b.y-source.a.y,sourceLength=Math.hypot(sourceDx,sourceDy);
+  const targetDx=target.b.x-target.a.x,targetDy=target.b.y-target.a.y,targetLength=Math.hypot(targetDx,targetDy);
+  if(sourceLength<.05||targetLength<.05)return null;
+  const ux=sourceDx/sourceLength,uy=sourceDy/sourceLength,tx=targetDx/targetLength,ty=targetDy/targetLength,cross=ux*ty-uy*tx;
+  let anchor,direction,parallel=Math.abs(cross)<.06;
+  if(parallel){
+    const normal={x:-uy,y:ux},sourceCenter={x:(source.a.x+source.b.x)/2,y:(source.a.y+source.b.y)/2},targetCenter={x:(target.a.x+target.b.x)/2,y:(target.a.y+target.b.y)/2};
+    const sourceOffset=sourceCenter.x*normal.x+sourceCenter.y*normal.y,targetOffset=targetCenter.x*normal.x+targetCenter.y*normal.y;
+    if(Math.abs(sourceOffset-targetOffset)<.08)return null;
+    const along=((sourceCenter.x+targetCenter.x)*ux+(sourceCenter.y+targetCenter.y)*uy)/2,offset=(sourceOffset+targetOffset)/2;
+    anchor={x:ux*along+normal.x*offset,y:uy*along+normal.y*offset};direction={x:ux,y:uy};
+  }else{
+    const dx=target.point.x-source.point.x,dy=target.point.y-source.point.y,length=Math.hypot(dx,dy);
+    if(length<.08)return null;
+    anchor={x:(source.point.x+target.point.x)/2,y:(source.point.y+target.point.y)/2};direction={x:-dy/length,y:dx/length};
+  }
+  const a={x:anchor.x-direction.x*20,y:anchor.y-direction.y*20},b={x:anchor.x+direction.x*20,y:anchor.y+direction.y*20};
+  let side=Math.sign(signedSide(source.point,a,b));if(!side)side=Math.sign(signedSide({x:(source.a.x+source.b.x)/2,y:(source.a.y+source.b.y)/2},a,b))||1;
+  return{a,b,side,parallel}
+}
+function foldSelectedEdges(source,target){
+  const line=edgeFoldLine(source,target);
+  if(!line){document.getElementById('footerTip').textContent='Those edges are already aligned or too close. Choose a different target.';return false}
+  const previous=designSnapshot(),previousSource=source,previousPoints=[{...source.a},{...source.b}],type=document.getElementById('foldType').value,kind=wingMode?'wing':'edge';
+  const foldLines=[line];
+  if(document.getElementById('symmetryToggle').checked){
+    const mirrored={a:mirrorCrease(line).a,b:mirrorCrease(line).b},sourcePoint={x:PAGE_W-source.point.x,y:source.point.y},mirroredSide=Math.sign(signedSide(sourcePoint,mirrored.a,mirrored.b))||-line.side;
+    if(!sameCrease(line,mirrored))foldLines.push({...mirrored,side:wingMode?-wingSide:mirroredSide});
+  }
+  for(const fold of foldLines)if(!applyFold(fold.a,fold.b,false,type,kind,fold.side,false)){
+    faces=previous.faces;creases=previous.creases;selectedEdge=previousSource;selectedPoints=previousPoints;updateFoldControls();draw();
+    document.getElementById('footerTip').textContent='That fold does not divide the visible paper. Select another target edge or crease.';return false
+  }
+  const instruction=line.parallel?'Fold the selected edge onto the target edge or crease along the halfway fold.':'Fold the selected spot onto the target spot using the angle-bisector crease.';
+  creases.slice(previous.creases.length).forEach(crease=>{crease.instruction=instruction});
+  undoStack.push(previous);selectedEdge=null;selectedPoints=[];wingMode=false;flightCache=null;updateFoldControls();setStats();draw();
+  document.getElementById('footerTip').textContent=line.parallel?'Aligned the selected edge with its target. The fold is ready to undo or refine.':'Folded the selected point onto its target using an angle-bisector line.';
+  return true
+}
+canvas.addEventListener('pointerdown',e=>{
+  if(testMode)return;
+  if(editor3D&&orbitMode){orbitPointer={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.style.cursor='grabbing';canvas.setPointerCapture(e.pointerId);e.preventDefault();return}
+  const p=canvasPoint(e);
+  if(pointFoldMode){
+    if(!p)return;
+    if(selectedPoints.length===2)selectedPoints=[];
+    selectedPoints.push({...p});updateFoldControls();draw();return
+  }
+  const edge=p&&nearestFoldEdge(e,Boolean(selectedEdge));
+  if(!edge){document.getElementById('footerTip').textContent=selectedEdge?'Click close to a target edge or existing crease.':'Click close to a visible paper edge or crease to select it.';return}
+  if(!selectedEdge){selectedEdge=edge;selectedPoints=[{...edge.a},{...edge.b}];updateFoldControls();draw();document.getElementById('footerTip').textContent='Source edge selected. Click a target edge or crease to fold it.';return}
+  if(sameCrease(selectedEdge,edge)){document.getElementById('footerTip').textContent='Choose a different edge or crease as the target.';return}
+  foldSelectedEdges(selectedEdge,edge)
+});
+canvas.addEventListener('pointermove',e=>{
+  if(!orbitPointer||orbitPointer.id!==e.pointerId)return;
+  const dx=e.clientX-orbitPointer.x,dy=e.clientY-orbitPointer.y;orbitPointer.x=e.clientX;orbitPointer.y=e.clientY;
+  cameraYaw-=dx*.008;cameraPitch=Math.max(.15,Math.min(1.25,cameraPitch+dy*.008));draw();e.preventDefault()
+});
+['pointerup','pointercancel'].forEach(type=>canvas.addEventListener(type,e=>{if(orbitPointer?.id===e.pointerId){orbitPointer=null;canvas.style.cursor=orbitMode?'grab':'crosshair';if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId)}}));
+canvas.addEventListener('wheel',e=>{if(!editor3D||testMode)return;e.preventDefault();cameraZoom=Math.max(.55,Math.min(2.4,cameraZoom*Math.exp(-e.deltaY*.001)));draw()},{passive:false});
+function signedSide(p,a,b){return(b.x-a.x)*(p.y-a.y)-(b.y-a.y)*(p.x-a.x)}
+function mirrorCrease(line){return{a:{x:PAGE_W-line.a.x,y:line.a.y},b:{x:PAGE_W-line.b.x,y:line.b.y}}}
+function sameCrease(a,b){const near=(p,q)=>Math.hypot(p.x-q.x,p.y-q.y)<1e-6;return near(a.a,b.a)&&near(a.b,b.b)||near(a.a,b.b)&&near(a.b,b.a)}
+function clipPolygon(poly,a,b,sign){const out=[];for(let i=0;i<poly.length;i++){const cur=poly[i],prev=poly[(i+poly.length-1)%poly.length],cv=signedSide(cur,a,b)*sign,pv=signedSide(prev,a,b)*sign,ci=cv>=-1e-8,pi=pv>=-1e-8;if(ci!==pi){const t=pv/(pv-cv);out.push({x:prev.x+t*(cur.x-prev.x),y:prev.y+t*(cur.y-prev.y)})}if(ci)out.push(cur)}return out}
+function polygonArea(poly){return Math.abs(poly.reduce((sum,p,i)=>{const q=poly[(i+1)%poly.length];return sum+p.x*q.y-q.x*p.y},0)/2)}
+function reflectPoint(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy),x=a.x+t*dx,y=a.y+t*dy;return{x:2*x-p.x,y:2*y-p.y}}
+function designSnapshot(){return{faces:faces.map(f=>({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType,layer:f.layer||0})),creases:creases.map(c=>({a:{...c.a},b:{...c.b},type:c.type,kind:c.kind,side:c.side,paired:c.paired,folded:c.folded,layer:c.layer||0,instruction:c.instruction||'',beforeFaces:c.beforeFaces?.map(f=>({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType,layer:f.layer||0}))}))}}
+function applyFold(a,b,record=true,type='valley',kind='crease',movingSignOverride=null,render=true){
+  if(Math.hypot(b.x-a.x,b.y-a.y)<.08)return false;
+  const layerValue=document.getElementById('foldLayer')?.value??'all',targetFaces=faces.filter(face=>layerValue==='all'||String(face.layer||0)===layerValue);
+  if(!targetFaces.length){if(render)document.getElementById('footerTip').textContent='That layer is no longer available. Choose another layer and try again.';return false}
+  let areas=[0,0];targetFaces.forEach(f=>{areas[0]+=polygonArea(clipPolygon(f.points,a,b,1));areas[1]+=polygonArea(clipPolygon(f.points,a,b,-1))});
+  if(Math.min(...areas)<.02){if(render)document.getElementById('footerTip').textContent='That crease does not divide the visible paper. Select another pair of points.';return false}
+  const movingSign=movingSignOverride??(areas[0]<=areas[1]?1:-1),newFaces=[],layer=Math.max(0,...faces.map(f=>f.layer||0))+1;
+  const beforeFaces=faces.map(f=>({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType,layer:f.layer||0}));
+  faces.forEach(f=>{if(!targetFaces.includes(f)){newFaces.push({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType,layer:f.layer||0});return}const moving=clipPolygon(f.points,a,b,movingSign),stationary=clipPolygon(f.points,a,b,-movingSign);if(polygonArea(stationary)>.001)newFaces.push({points:stationary,folded:f.folded,foldType:f.foldType,layer:f.layer||0});if(polygonArea(moving)>.001)newFaces.push({points:moving.map(p=>reflectPoint(p,a,b)),folded:true,foldType:type,layer})});
+  if(record)undoStack.push(designSnapshot());
+  faces=newFaces;creases.push({a:{...a},b:{...b},type,kind,side:movingSign,folded:true,layer,instruction:'',beforeFaces});selectedPoints=[];selectedEdge=null;refreshFoldLayerOptions();if(render){updateFoldControls();draw()}return true
+}
+function updateFoldControls(){
+  refreshFoldLayerOptions();
+  const count=creases.length,hasSource=Boolean(selectedEdge),hasPointLine=pointFoldMode&&selectedPoints.length===2,hasPointSelection=pointFoldMode&&selectedPoints.length>0,halfFolded=creases.some(c=>c.kind==='center'&&c.folded!==false),canUnfold=creases.some(c=>!c.paired&&c.folded!==false);
+  document.getElementById('guideBtn').disabled=!count||testMode;
+  document.getElementById('foldBtn').disabled=pointFoldMode?!hasPointLine&&!hasPointSelection||testMode||editor3D&&orbitMode:!hasSource||testMode||editor3D&&orbitMode;
+  document.getElementById('foldBtn').textContent=pointFoldMode?hasPointLine?'Fold selected line':'Cancel point selection':'Cancel edge selection';
+  document.getElementById('pointFoldModeBtn').classList.toggle('active',pointFoldMode);
+  document.getElementById('pointFoldModeBtn').disabled=testMode||editor3D&&orbitMode;
+  document.getElementById('pointFoldModeBtn').setAttribute('aria-pressed',String(pointFoldMode));
+  document.getElementById('pointFoldModeBtn').textContent=pointFoldMode?'Use edge-to-edge fold':'Use point-to-point fold';
+  document.getElementById('wingModeBtn').textContent=wingMode?'Cancel wing crease':'Select wing crease';
+  document.getElementById('wingModeBtn').disabled=!halfFolded&&!wingMode;
+  document.getElementById('wingModeBtn').classList.toggle('active',wingMode);
+  document.getElementById('wingSide').disabled=!wingMode;
+  document.getElementById('unfoldBtn').disabled=!canUnfold||testMode;
+  document.getElementById('unfoldBtn').textContent=canUnfold?'Unfold last fold · keep crease':'No folded creases';
+  document.getElementById('halfFoldBtn').disabled=halfFolded||testMode;
+  document.getElementById('halfFoldBtn').textContent=halfFolded?'Plane folded in half':'Fold plane in half';
+  document.getElementById('wingletBtn').disabled=!creases.some(c=>c.kind==='wing'&&!c.paired)||testMode;
+  document.getElementById('stepPill').textContent=orbitMode?'ORBIT 3D VIEW':pointFoldMode?`SELECT POINT ${Math.min(2,selectedPoints.length+1)} OF 2`:wingMode?(hasSource?'SELECT WING TARGET':'SELECT WING EDGE'):hasSource?'SELECT TARGET EDGE':'SELECT SOURCE EDGE';
+  document.getElementById('viewPill').textContent=`${editor3D?'3D FOLD VIEW':'TOP VIEW'} · ${count} FOLD${count===1?'':'S'} · ${editorRotation}°`;
+  document.getElementById('editorViewBtn').textContent=editor3D?'Top view':'3D view';
+  document.getElementById('editorViewBtn').disabled=testMode;
+  document.getElementById('editorViewBtn').setAttribute('aria-label',editor3D?'Switch to top-down 2D view':'Switch to 3D view');
+  document.getElementById('orbitBtn').hidden=!editor3D;
+  document.getElementById('orbitBtn').disabled=testMode;
+  document.getElementById('orbitBtn').textContent=orbitMode?'Orbit: on':'Orbit: off';
+  document.getElementById('orbitBtn').setAttribute('aria-pressed',String(orbitMode));
+  document.getElementById('resetViewBtn').hidden=!editor3D;
+  document.getElementById('resetViewBtn').disabled=testMode;
+  canvas.style.cursor=editor3D&&orbitMode?'grab':'crosshair';
+  document.getElementById('rotateBtn').title=`Rotate editor view (currently ${editorRotation} degrees)`;
+  document.getElementById('tooltip').textContent=editor3D&&orbitMode?'Drag to orbit the 3D plane · scroll to zoom':pointFoldMode?hasPointLine?'Two points selected. Click Fold selected line to make this crease.':'Click two points on the paper, then fold along the line between them.':hasSource?'Source edge selected. Click a different edge or crease to fold it.':'Click an edge, then another edge or crease; the fold is made on the second click.';
+  document.querySelectorAll('.step').forEach((el,i)=>{el.classList.toggle('active',i===(hasSource?1:0));el.classList.toggle('done',i===0&&count>0||i===1&&count>0)});
+  if(pointFoldMode)document.getElementById('footerTip').textContent=hasPointLine?'Two points selected. Click Fold selected line to make the crease.':hasPointSelection?'Point 1 selected. Click a second point to define the crease.':'Click two points on the paper to define a crease.';
+  else if(!hasSource)document.getElementById('footerTip').textContent='Click an edge, then a target edge or crease to fold that section.';
+  else document.getElementById('footerTip').textContent='Source edge selected. Click a target edge or crease to complete the fold.';
+  if(!applyingRemoteState)scheduleRoomSync();
+}
+function refreshFoldLayerOptions(){
+  const select=document.getElementById('foldLayer');
+  if(!select)return;
+  const previous=select.value||'all',layers=[...new Set(faces.map(face=>face.layer||0))].sort((a,b)=>a-b);
+  select.replaceChildren(new Option('All layers','all'));
+  layers.forEach(layer=>select.add(new Option(`Layer ${layer} · ${faces.filter(face=>(face.layer||0)===layer).length} faces`,String(layer))));
+  select.value=layers.includes(Number(previous))?previous:'all';
+}
+function setRoomStatus(message){document.getElementById('multiplayerStatus').textContent=message}
+function updateRoomControls(connecting=false){
+  const active=Boolean(activeRoomCode),busy=active||connecting;
+  document.getElementById('createRoomBtn').disabled=busy;
+  document.getElementById('joinRoomBtn').disabled=busy;
+  document.getElementById('roomCodeInput').disabled=busy;
+  document.getElementById('leaveRoomBtn').disabled=!active;
+  document.getElementById('copyRoomLinkBtn').disabled=!active;
+}
+function roomDesignState(){
+  const snapshot=designSnapshot();
+  return{
+    faces:snapshot.faces,
+    creases:snapshot.creases,
+    rotation:editorRotation,
+    art:{enabled:customArt.enabled,pattern:customArt.pattern,primary:customArt.primary,secondary:customArt.secondary,accent:customArt.accent,text:customArt.text,imageSrc:customArt.imageSrc||''}
+  };
+}
+function scheduleRoomSync(){
+  if(applyingRemoteState||!activeRoomCode||multiplayerSocket?.readyState!==WebSocket.OPEN)return;
+  clearTimeout(roomSyncTimer);
+  roomSyncTimer=setTimeout(()=>{
+    if(!activeRoomCode||multiplayerSocket?.readyState!==WebSocket.OPEN)return;
+    const state=roomDesignState(),serialized=JSON.stringify(state);
+    if(serialized===lastSharedState)return;
+    if(new TextEncoder().encode(serialized).length>950000){
+      setRoomStatus('This design is too large to share. Remove a large image or simplify the fold history.');
+      return;
+    }
+    lastSharedState=serialized;
+    multiplayerSocket.send(JSON.stringify({type:'state',state}));
+  },220);
+}
+function updateInviteUrl(code){
+  const url=new URL(location.href);
+  url.searchParams.set('room',code);
+  document.getElementById('roomInviteLink').value=url.href;
+  history.replaceState(null,'',url);
+}
+function applyRemoteRoomState(state){
+  if(!state||!Array.isArray(state.faces)||!Array.isArray(state.creases)){
+    setRoomStatus('A room member sent an invalid plane update.');
+    return;
+  }
+  applyingRemoteState=true;
+  try{
+    faces=state.faces.map(face=>({points:face.points.map(point=>({...point})),folded:face.folded,foldType:face.foldType,layer:face.layer||0}));
+    creases=JSON.parse(JSON.stringify(state.creases));
+    undoStack=[];selectedPoints=[];selectedEdge=null;wingMode=false;pointFoldMode=false;
+    editorRotation=[0,90,180,270].includes(state.rotation)?state.rotation:0;
+    if(state.art){
+      customArt={...state.art,image:null,imageSrc:state.art.imageSrc||''};
+      document.getElementById('artPattern').value=customArt.pattern||'plain';
+      document.getElementById('artPrimary').value=customArt.primary||'#fffef8';
+      document.getElementById('artSecondary').value=customArt.secondary||'#2e65ff';
+      document.getElementById('artAccent').value=customArt.accent||'#ff7043';
+      document.getElementById('artText').value=customArt.text||'';
+      if(customArt.imageSrc){
+        const image=new Image();
+        image.onload=()=>{customArt.image=image;draw()};
+        image.onerror=()=>{setRoomStatus('Plane synced, but its custom artwork image could not be loaded.')};
+        image.src=customArt.imageSrc;
+      }
+    }
+    setStats();updateFoldControls();draw();
+    lastSharedState=JSON.stringify(roomDesignState());
+  }catch(error){
+    console.error('Unable to apply a multiplayer plane update:',error);
+    setRoomStatus('Could not apply a plane update from the room.');
+  }finally{applyingRemoteState=false}
+}
+function connectToRoom(action){
+  if(location.protocol==='file:'){
+    setRoomStatus('Online rooms require the app to be served with npm start.');
+    return;
+  }
+  if(activeRoomCode||multiplayerSocket?.readyState===WebSocket.CONNECTING)return;
+  if(multiplayerSocket?.readyState===WebSocket.OPEN){
+    multiplayerSocket.send(JSON.stringify(action));
+    return;
+  }
+  pendingRoomAction=action;
+  updateRoomControls(true);
+  setRoomStatus('Connecting to the online room server…');
+  const protocol=location.protocol==='https:'?'wss:':'ws:';
+  const socket=new WebSocket(`${protocol}//${location.host}/ws`);
+  multiplayerSocket=socket;
+  socket.onopen=()=>{
+    const pending=pendingRoomAction;
+    pendingRoomAction=null;
+    if(pending)socket.send(JSON.stringify(pending));
+  };
+  socket.onmessage=event=>{
+    let message;
+    try{message=JSON.parse(event.data)}catch(error){console.error('Invalid multiplayer server message:',error);setRoomStatus('Received an invalid message from the room server.');return}
+    if(message.type==='error'){
+      setRoomStatus(message.message);
+      if(!activeRoomCode){pendingRoomAction=null;updateRoomControls();socket.close(1000,'Room request failed.')}
+      return;
+    }
+    if(message.type==='room'){
+      activeRoomCode=message.code;
+      document.getElementById('roomCodeInput').value=message.code;
+      updateInviteUrl(message.code);
+      updateRoomControls();
+      setRoomStatus(`Connected · ${message.count} ${message.count===1?'pilot':'pilots'} in this room. Everyone can edit this plane.`);
+      if(message.state)applyRemoteRoomState(message.state);
+      else scheduleRoomSync();
+      return;
+    }
+    if(message.type==='presence'){
+      setRoomStatus(`Connected · ${message.count} ${message.count===1?'pilot':'pilots'} in this room. Everyone can edit this plane.`);
+      return;
+    }
+    if(message.type==='state')applyRemoteRoomState(message.state);
+  };
+  socket.onerror=()=>setRoomStatus('Could not connect to the room server. Check that the server is running.');
+  socket.onclose=()=>{
+    if(multiplayerSocket!==socket)return;
+    multiplayerSocket=null;pendingRoomAction=null;activeRoomCode=null;lastSharedState='';
+    updateRoomControls();
+    const url=new URL(location.href);url.searchParams.delete('room');history.replaceState(null,'',url);
+    setRoomStatus('Disconnected from the online room.');
+  };
+}
+function leaveOnlineRoom(){
+  const socket=multiplayerSocket;
+  multiplayerSocket=null;pendingRoomAction=null;activeRoomCode=null;lastSharedState='';
+  updateRoomControls();
+  if(socket)socket.close(1000,'Left room.');
+  const url=new URL(location.href);url.searchParams.delete('room');history.replaceState(null,'',url);
+  document.getElementById('roomInviteLink').value='';
+  setRoomStatus('Left the online room.');
+}
+document.getElementById('createRoomBtn').onclick=()=>connectToRoom({type:'create'});
+document.getElementById('joinRoomBtn').onclick=()=>{
+  const code=document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if(!/^[A-F0-9]{10}$/.test(code)){setRoomStatus('Enter a 10-character hexadecimal room code.');return}
+  connectToRoom({type:'join',code});
+};
+document.getElementById('roomCodeInput').oninput=event=>{event.target.value=event.target.value.toUpperCase().replace(/[^A-F0-9]/g,'').slice(0,10)};
+document.getElementById('leaveRoomBtn').onclick=leaveOnlineRoom;
+document.getElementById('copyRoomLinkBtn').onclick=async()=>{
+  const link=document.getElementById('roomInviteLink');
+  if(!link.value)return;
+  try{await navigator.clipboard.writeText(link.value);setRoomStatus('Invite link copied. Anyone with it can edit this plane.')}
+  catch(error){console.error('Unable to copy the invite link:',error);link.select();setRoomStatus('Copy is unavailable here; the invite link is selected so you can copy it manually.')}
+};
+addEventListener('pagehide',()=>{if(multiplayerSocket)multiplayerSocket.close(1000,'Page closed.')});
+document.getElementById('foldLayer').onchange=()=>{selectedEdge=null;selectedPoints=[];updateFoldControls();draw()};
+function foldSelectedPoints(){
+  if(selectedPoints.length!==2)return false;
+  const line={a:{...selectedPoints[0]},b:{...selectedPoints[1]}},previous=designSnapshot(),previousPoints=selectedPoints.map(point=>({...point})),type=document.getElementById('foldType').value,kind=wingMode?'wing':'crease',foldLines=[{...line,side:wingMode?wingSide:null}];
+  if(document.getElementById('symmetryToggle').checked){const mirrored=mirrorCrease(line);if(!sameCrease(line,mirrored))foldLines.push({...mirrored,side:wingMode?-wingSide:null})}
+  for(const fold of foldLines)if(!applyFold(fold.a,fold.b,false,type,kind,fold.side,false)){
+    faces=previous.faces;creases=previous.creases;selectedPoints=previousPoints;updateFoldControls();draw();document.getElementById('footerTip').textContent='That line does not divide the visible paper. Select two different points.';return false
+  }
+  creases.slice(previous.creases.length).forEach(crease=>{crease.instruction='Fold along the line between the two selected points.'});
+  undoStack.push(previous);selectedEdge=null;selectedPoints=[];wingMode=false;flightCache=null;updateFoldControls();setStats();draw();return true
+}
+document.getElementById('foldBtn').onclick=()=>{
+  if(pointFoldMode){if(selectedPoints.length===2)foldSelectedPoints();else{selectedPoints=[];updateFoldControls();draw()}return}
+  selectedEdge=null;selectedPoints=[];updateFoldControls();draw()
+};
+document.getElementById('pointFoldModeBtn').onclick=()=>{pointFoldMode=!pointFoldMode;selectedEdge=null;selectedPoints=[];wingMode=false;updateFoldControls();draw()};
+function paperBounds(){
+  const points=faces.flatMap(face=>face.points);
+  return{minX:Math.min(...points.map(point=>point.x)),maxX:Math.max(...points.map(point=>point.x)),minY:Math.min(...points.map(point=>point.y)),maxY:Math.max(...points.map(point=>point.y))}
+}
+function applyFoldProcedure(name,steps){
+  const previous=designSnapshot(),previousSource=selectedEdge,previousPoints=selectedPoints.map(point=>({...point})),previousLayer=document.getElementById('foldLayer').value;
+  for(const pendingStep of steps){
+    const step=typeof pendingStep==='function'?pendingStep():pendingStep;
+    if(step.layer!==undefined){refreshFoldLayerOptions();document.getElementById('foldLayer').value=String(step.layer)}
+    if(!applyFold(step.a,step.b,false,step.type,step.kind,step.side??null,false)){
+      faces=previous.faces;creases=previous.creases;selectedEdge=previousSource;selectedPoints=previousPoints;document.getElementById('foldLayer').value=previousLayer;updateFoldControls();draw();
+      document.getElementById('footerTip').textContent=`Could not complete the ${name.toLowerCase()} on the current folds. Undo or reset and try again.`;return false
+    }
+    creases[creases.length-1].instruction=step.instruction;
+  }
+  undoStack.push(previous);selectedEdge=null;selectedPoints=[];wingMode=false;flightCache=null;document.getElementById('foldLayer').value=previousLayer;updateFoldControls();setStats();draw();
+  document.getElementById('footerTip').textContent=`${name} added. Use Undo once to remove the complete procedure.`;
+  return true
+}
+document.getElementById('squashFoldBtn').onclick=()=>{
+  const center=PAGE_W/2,y=PAGE_W*.62;
+  applyFoldProcedure('Squash fold',[
+    {a:{x:center,y:0},b:{x:center,y:PAGE_H},type:'valley',kind:'squash',instruction:'Fold the sheet in half along the centerline to establish the pocket crease.'},
+    {a:{x:0,y:0},b:{x:center,y},type:'valley',kind:'squash',instruction:'Fold the upper-left corner toward the center to form one side of the pocket.'},
+    {a:{x:PAGE_W,y:0},b:{x:center,y},type:'mountain',kind:'squash',instruction:'Fold the upper-right corner toward the center to form the matching pocket side.'},
+    {a:{x:0,y},b:{x:PAGE_W,y},type:'mountain',kind:'squash',instruction:'Open the pocket slightly, then squash it flat across this line.'}
+  ])
+};
+document.getElementById('waterbombBaseBtn').onclick=()=>{
+  const bounds=paperBounds(),size=Math.min(bounds.maxX-bounds.minX,bounds.maxY-bounds.minY);
+  if(size<.08){document.getElementById('footerTip').textContent='There is not enough visible paper to form a waterbomb base.';return}
+  const left=(bounds.minX+bounds.maxX-size)/2,right=left+size,top=(bounds.minY+bounds.maxY-size)/2,bottom=top+size;
+  applyFoldProcedure('Waterbomb base',[
+    {a:{x:left,y:top},b:{x:right,y:bottom},type:'valley',kind:'waterbomb',instruction:'Fold the centered square along its first diagonal.'},
+    {a:{x:right,y:top},b:{x:left,y:bottom},type:'mountain',kind:'waterbomb',instruction:'Fold across the opposite diagonal.'},
+    ()=>{const current=paperBounds(),centerY=(current.minY+current.maxY)/2;return{a:{x:current.minX,y:centerY},b:{x:current.maxX,y:centerY},type:'valley',kind:'waterbomb',instruction:'Fold the shape in half horizontally through the diagonal intersection.'}},
+    ()=>{const current=paperBounds(),centerX=(current.minX+current.maxX)/2;return{a:{x:centerX,y:current.minY},b:{x:centerX,y:current.maxY},type:'mountain',kind:'waterbomb',instruction:'Fold the upper layer inward along the center of the folded shape to finish the waterbomb base.'}}
+  ])
+};
+document.getElementById('halfFoldBtn').onclick=()=>{
+  const previous=designSnapshot(),ok=applyFold({x:PAGE_W/2,y:0},{x:PAGE_W/2,y:PAGE_H},false,document.getElementById('foldType').value,'center');
+  if(!ok){faces=previous.faces;creases=previous.creases;updateFoldControls();draw();return}
+  undoStack.push(previous);selectedPoints=[];setStats();updateFoldControls();draw();
+};
+document.getElementById('wingModeBtn').onclick=()=>{if(!creases.some(c=>c.kind==='center'&&c.folded!==false))return;wingMode=!wingMode;selectedEdge=null;selectedPoints=[];updateFoldControls();draw()};
+document.getElementById('wingletBtn').onclick=()=>{
+  const wings=creases.filter(crease=>crease.kind==='wing');
+  if(!wings.length)return;
+  const wingletLayer=Math.max(...faces.map(face=>face.layer||0));
+  const steps=wings.map(crease=>{
+    const dx=crease.b.x-crease.a.x,dy=crease.b.y-crease.a.y,length=Math.hypot(dx,dy),side=crease.side||1,offset=-.18*side;
+    const nx=-dy/length,ny=dx/length;
+    return{
+      a:{x:crease.a.x+nx*offset,y:crease.a.y+ny*offset},
+      b:{x:crease.b.x+nx*offset,y:crease.b.y+ny*offset},
+      type:'mountain',kind:'winglet',side,layer:wingletLayer,
+      instruction:'Fold the narrow strip along the wingtip upward to form a winglet.'
+    };
+  });
+  applyFoldProcedure('Winglets',steps);
+};
+document.getElementById('wingSide').onchange=()=>{wingSide=Number(document.getElementById('wingSide').value);draw()};
+document.getElementById('unfoldBtn').onclick=()=>{
+  const crease=[...creases].reverse().find(c=>!c.paired&&c.folded!==false);
+  if(!crease)return;
+  const previous=designSnapshot();
+  faces=crease.beforeFaces.map(f=>({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType,layer:f.layer||0}));
+  crease.folded=false;
+  creases.filter(c=>c.paired&&c.kind===crease.kind&&sameCrease(c,mirrorCrease(crease))).forEach(c=>{c.folded=false});
+  if(crease.kind==='center'&&!creases.some(c=>c.kind==='center'&&c.folded!==false))wingMode=false;
+  undoStack.push(previous);selectedEdge=null;selectedPoints=[];updateFoldControls();setStats();draw()
+};
+document.getElementById('rotateBtn').onclick=()=>{editorRotation=(editorRotation+90)%360;updateFoldControls();draw()};
+document.getElementById('editorViewBtn').onclick=()=>{editor3D=!editor3D;orbitMode=false;orbitPointer=null;updateFoldControls();draw()};
+document.getElementById('orbitBtn').onclick=()=>{orbitMode=!orbitMode;updateFoldControls();draw()};
+document.getElementById('resetViewBtn').onclick=()=>{cameraYaw=-.48;cameraPitch=.64;cameraZoom=1;editorRotation=0;updateFoldControls();draw()};
+document.getElementById('foldType').onchange=draw;
+document.getElementById('setHorizontalBtn').onclick=()=>{
+  const y=Number(document.getElementById('horizontalAt').value);
+  if(!Number.isFinite(y)||y<=0||y>=PAGE_H){document.getElementById('footerTip').textContent='Enter a horizontal crease between 0.01 and 10.99 inches from the top.';return}
+  applyFoldProcedure('Horizontal fold',[{a:{x:0,y},b:{x:PAGE_W,y},type:document.getElementById('foldType').value,kind:'crease',instruction:`Fold the sheet along the horizontal line ${y.toFixed(2)} inches from the top.`}])
+};
+document.getElementById('symmetryToggle').onchange=()=>{updateFoldControls();draw()};
+document.getElementById('backBtn').onclick=()=>{if(undoStack.length){const previous=undoStack.pop();faces=previous.faces;creases=previous.creases;selectedEdge=null;selectedPoints=[]}else if(selectedEdge){selectedEdge=null;selectedPoints=[]}else selectedPoints.pop();updateFoldControls();setStats();draw()};
+document.getElementById('resetBtn').onclick=()=>{faces=[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false,layer:0}];creases=[];undoStack=[];selectedEdge=null;selectedPoints=[];testMode=false;wingMode=false;pointFoldMode=false;editorRotation=0;document.getElementById('testBtn').textContent='Test flight →';document.querySelector('.stage-head').style.opacity='1';document.getElementById('tooltip').style.display='block';updateFoldControls();setStats();draw()};
+document.getElementById('testBtn').onclick=()=>{testMode=!testMode;document.getElementById('testBtn').textContent=testMode?'Editing →':'Test flight →';document.querySelector('.stage-head').style.opacity=testMode?'.35':'1';document.getElementById('tooltip').style.display=testMode?'none':'block';updateFoldControls();if(!testMode){draw();return}flightStartedAt=performance.now();setStats();const start=flightStartedAt,anim=()=>{draw();if(testMode&&performance.now()-start<6000)requestAnimationFrame(anim)};anim();setTimeout(()=>{if(testMode)openResults()},5200)};
+['wind','throw'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{setStats();if(testMode){flightStartedAt=performance.now();draw()}}));
+function foldVisual(crease,index){
+  const shape=crease.beforeFaces?.length?crease.beforeFaces:[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false}],points=shape.flatMap(f=>f.points);
+  const xs=points.map(p=>p.x),ys=points.map(p=>p.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+  const scale=Math.min(88/Math.max(.1,maxX-minX),122/Math.max(.1,maxY-minY)),tx=(100-(maxX-minX)*scale)/2-minX*scale,ty=(136-(maxY-minY)*scale)/2-minY*scale;
+  const map=p=>({x:tx+p.x*scale,y:ty+p.y*scale}),color=crease.type==='mountain'?'#ff7043':'#2e65ff';
+  const polygons=shape.map(f=>`<polygon points="${f.points.map(p=>{const q=map(p);return`${q.x.toFixed(1)},${q.y.toFixed(1)}`}).join(' ')}" fill="${f.folded?(f.foldType==='mountain'?'#f8e6db':'#e5edfc'):'#fffef8'}" stroke="#89948c" stroke-width="1"/>`).join('');
+  const side=crease.side===-1?-1:1,moving=shape.flatMap(f=>{const poly=clipPolygon(f.points,crease.a,crease.b,side);return polygonArea(poly)>.001?[poly]:[]});
+  const movingPolygons=moving.map(poly=>`<polygon points="${poly.map(p=>{const q=map(p);return`${q.x.toFixed(1)},${q.y.toFixed(1)}`}).join(' ')}" fill="${color}" fill-opacity=".2"/>`).join('');
+  const [a,b]=creaseExtent(crease,shape),pa=map(a),pb=map(b);
+  let arrow='';
+  if(moving.length){const center=moving[0].reduce((sum,p)=>({x:sum.x+p.x/moving[0].length,y:sum.y+p.y/moving[0].length}),{x:0,y:0}),target=map(reflectPoint(center,crease.a,crease.b)),start=map(center);if(Math.hypot(target.x-start.x,target.y-start.y)>1)arrow=`<line x1="${start.x.toFixed(1)}" y1="${start.y.toFixed(1)}" x2="${target.x.toFixed(1)}" y2="${target.y.toFixed(1)}" stroke="${color}" stroke-width="2" marker-end="url(#fold-arrow-${index})"/>`}
+  return`<svg class="guide-thumb" viewBox="0 0 100 136" role="img" aria-label="Fold diagram ${index+1}"><defs><marker id="fold-arrow-${index}" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="${color}"/></marker></defs>${polygons}${movingPolygons}<line x1="${pa.x.toFixed(1)}" y1="${pa.y.toFixed(1)}" x2="${pb.x.toFixed(1)}" y2="${pb.y.toFixed(1)}" stroke="${color}" stroke-width="2" stroke-dasharray="${crease.type==='mountain'?'6 2 1 2':'4 3'}"/>${arrow}</svg>`
+}
+function foldGuideSteps(){
+  return creases.map((c,i)=>{
+    const a=`${c.a.x.toFixed(2)} in from left, ${c.a.y.toFixed(2)} in from top`,b=`${c.b.x.toFixed(2)} in from left, ${c.b.y.toFixed(2)} in from top`;
+    let title,description;
+    if(c.kind==='center'){title='Fold the plane in half';description='With the sheet in portrait orientation, bring the two long sides together along the center crease. Press the full length firmly.'}
+    else if(c.kind==='edge'){title=`Edge-to-edge ${c.type} fold`;description=c.instruction||'Fold the selected edge toward the target edge or crease.'}
+    else if(c.kind==='wing'){title=`${c.type==='mountain'?'Mountain':'Valley'} fold · ${c.paired?'opposite wing':'first wing'} ${c.type==='mountain'?'away from you':'toward you'}`;description='Fold the section indicated by the diagram arrow over the crease to form the wing; the remaining paper becomes the fuselage.'}
+    else if(c.kind==='winglet'){title='Fold a winglet';description=c.instruction||'Fold the narrow strip along the wingtip upward to form a winglet.'}
+    else if(c.kind==='tail'){title=`Fold the tail stabilizer · ${c.type==='mountain'?'mountain':'valley'} fold`;description='Fold the rear section indicated by the diagram arrow across this crease to form the tail stabilizer, then press firmly.'}
+    else if(c.kind==='nose'){title=`Fold the ${c.paired?'opposite ':'front '}nose panel inward`;description='Fold the front corner indicated by the diagram arrow toward the centerline along this crease to form a nose panel.'}
+    else if(c.kind==='lock'){title='Fold the nose-lock tab';description='Fold the nose tab shown in the diagram across the front to hold the nose layers in place.'}
+    else if(c.kind==='squash'){title='Squash fold · '+(c.instruction?.split('.')[0]||'collapse the pocket');description=c.instruction||'Open the pocket, then flatten it along the crease shown.'}
+    else if(c.kind==='waterbomb'){title='Waterbomb base · '+(c.instruction?.split('.')[0]||'crease the centered square');description=c.instruction||'Make the crease shown as part of the waterbomb-base collapse.'}
+    else{title=c.type==='mountain'?'Mountain fold (away from you)':'Valley fold (toward you)';description=`Mark points (${a}) and (${b}) on the current paper. Fold the indicated side over the crease and press it flat.`}
+    return{crease:c,index:i+1,title,description}
+  })
+}
+function renderFoldGuide(){
+  const list=document.getElementById('foldGuide'),steps=foldGuideSteps();
+  if(!steps.length){list.innerHTML='<li>No creases yet. Return to the sheet and make at least one fold.</li>';return}
+  list.innerHTML=steps.map(s=>`<li class="guide-step">${foldVisual(s.crease,s.index-1)}<div><b>${s.index}. ${escapeHtml(s.title)}</b><br>${escapeHtml(s.description)}</div></li>`).join('');
+}
+function escapeHtml(text){return String(text).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
+function escapeXml(text){return text.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[char]))}
+function wrapSvgText(text,maxChars=91){const words=text.split(/\s+/),lines=[];let line='';for(const word of words){if(line&&`${line} ${word}`.length>maxChars){lines.push(line);line=word}else line=line?`${line} ${word}`:word}if(line)lines.push(line);return lines}
+function buildInstructionsSvg(){
+  const steps=foldGuideSteps(),rowHeight=176,width=1200,height=150+Math.max(1,steps.length)*rowHeight,rows=steps.length?steps.map((s,i)=>{
+    const y=135+i*rowHeight,visual=foldVisual(s.crease,s.index-1),inner=visual.slice(visual.indexOf('>')+1,visual.lastIndexOf('</svg>')),lines=wrapSvgText(s.description);
+    const text=lines.map((line,j)=>`<tspan x="190" dy="${j?23:0}">${escapeXml(line)}</tspan>`).join('');
+    return`<rect x="28" y="${y}" width="1144" height="160" rx="12" fill="#ffffff" stroke="#d9dcd8"/><svg x="48" y="${y+12}" width="100" height="136" viewBox="0 0 100 136">${inner}</svg><text x="184" y="${y+40}" font-family="Arial,sans-serif" font-size="21" font-weight="700" fill="#18202a">${s.index}. ${escapeXml(s.title)}</text><text x="184" y="${y+72}" font-family="Arial,sans-serif" font-size="16" fill="#3f4942">${text}</text>`
+  }).join(''):`<rect x="28" y="135" width="1144" height="160" rx="12" fill="#ffffff" stroke="#d9dcd8"/><text x="52" y="190" font-family="Arial,sans-serif" font-size="20" fill="#18202a">No folds yet. Return to the editor and create a fold to get instructions.</text>`;
+  return`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#edf0eb"/><text x="40" y="54" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#18202a">FOLD LAB · PAPER PLANE FOLDING GUIDE</text><text x="42" y="91" font-family="Arial,sans-serif" font-size="17" fill="#59645b">Letter paper · 8.5 × 11 in · Portrait orientation</text>${rows}<text x="42" y="${height-22}" font-family="Arial,sans-serif" font-size="13" fill="#697169">Fold lines and directions are illustrated for each step.</text></svg>`
+}
+function downloadInstructionsPng(){
+  const status=document.getElementById('exportStatus'),button=document.getElementById('downloadGuide');
+  status.textContent='Preparing PNG…';button.disabled=true;
+  const svgBlob=new Blob([buildInstructionsSvg()],{type:'image/svg+xml'}),svgUrl=URL.createObjectURL(svgBlob),image=new Image();
+  image.onerror=()=>{URL.revokeObjectURL(svgUrl);button.disabled=false;status.textContent='Could not render the instructions image. Please try again.'};
+  image.onload=()=>{
+    URL.revokeObjectURL(svgUrl);
+    const output=document.createElement('canvas'),scale=2;output.width=image.naturalWidth*scale;output.height=image.naturalHeight*scale;
+    const outputContext=output.getContext('2d');
+    if(!outputContext){button.disabled=false;status.textContent='PNG export is unavailable in this browser.';return}
+    outputContext.scale(scale,scale);outputContext.drawImage(image,0,0);
+    output.toBlob(blob=>{
+      button.disabled=false;
+      if(!blob){status.textContent='Could not create the PNG file. Please try again.';return}
+      const pngUrl=URL.createObjectURL(blob),link=document.createElement('a');link.href=pngUrl;link.download='fold-lab-instructions.png';link.click();setTimeout(()=>URL.revokeObjectURL(pngUrl),1000);status.textContent='Instructions PNG downloaded.'
+    },'image/png')
+  };
+  image.src=svgUrl
+}
+document.getElementById('downloadGuide').onclick=downloadInstructionsPng;
+document.getElementById('guideBtn').onclick=()=>{
+  document.querySelector('#modal h3').textContent='Build this plane';
+  document.getElementById('testResults').hidden=true;
+  document.getElementById('saveResult').hidden=true;
+  document.getElementById('exportStatus').textContent='';
+  renderFoldGuide();document.getElementById('modal').classList.add('open')
+};
+function openResults(){
+  const flight=flightEstimate(),{stats:s,distance,time,glideRatio,maxSpeed}=flight,feet=distance*3.28084,score=Math.round(s.stability*.45+glideRatio*5+Math.min(time,8)*4);
+  document.querySelector('#modal h3').textContent='Flight test complete';
+  document.getElementById('testResults').hidden=false;
+  document.getElementById('saveResult').hidden=false;
+  document.getElementById('testResults').innerHTML=`<div class="modal-row"><b>Simulated flight distance</b><span>${feet.toFixed(0)} ft (${distance.toFixed(1)} m)</span></div><div class="modal-row"><b>Simulated flight time</b><span>${time.toFixed(1)} s</span></div><div class="modal-row"><b>Simulated top speed</b><span>${maxSpeed.toFixed(1)} m/s</span></div><div class="modal-row"><b>Glide ratio</b><span>${glideRatio.toFixed(1)} : 1</span></div><div class="modal-row"><b>Design score</b><span>${Math.min(100,score)} / 100</span></div><p>Estimate uses a simplified aerodynamic model; real range varies with paper, folds, and throw.</p>`;
+  renderFoldGuide();document.getElementById('modal').classList.add('open')
+}
+function finishFlight(){testMode=false;document.getElementById('testBtn').textContent='Test flight →';document.querySelector('.stage-head').style.opacity='1';document.getElementById('tooltip').style.display='block';updateFoldControls();draw()}
+document.getElementById('closeModal').onclick=()=>{document.getElementById('modal').classList.remove('open');finishFlight()};
+document.getElementById('saveResult').onclick=()=>savePlane(true);
+document.getElementById('saveBtn').onclick=()=>savePlane(false);
+function getSavedPlanes(){
+  try{return JSON.parse(localStorage.getItem('foldLabPlanes'))||[]}catch(error){return []}
+}
+function openHome(){
+  renderPlaneGrid();
+  document.getElementById('homeScreen').classList.add('open');
+}
+function renderPlaneGrid(){
+  const grid=document.getElementById('planeGrid'),planes=getSavedPlanes();
+  grid.innerHTML='';
+  if(!planes.length){
+    const empty=document.createElement('div');empty.className='empty-home';empty.style.gridColumn='1/-1';empty.textContent='No saved planes yet. Create one in the editor, then choose Save plane.';
+    grid.appendChild(empty);updateRaceButton();return;
+  }
+  planes.forEach((plane,index)=>{
+    const card=document.createElement('article');card.className='plane-card';
+    const selectLabel=document.createElement('label');selectLabel.className='plane-select';
+    const select=document.createElement('input');select.type='checkbox';select.className='race-select';select.dataset.planeIndex=String(index);select.onchange=updateRaceButton;
+    selectLabel.append(select,document.createTextNode('Select for competition'));
+    const thumbnail=document.createElement('img');thumbnail.className='plane-thumbnail';thumbnail.alt=`${plane.name} preview`;
+    thumbnail.src=plane.thumbnail||'';
+    const title=document.createElement('h3');title.textContent=plane.name;
+    const date=document.createElement('time');date.textContent=plane.savedAt||'Saved plane';
+    const actions=document.createElement('div');actions.className='plane-card-actions';
+    const open=document.createElement('button');open.className='open-plane';open.textContent='Open';
+    open.onclick=()=>loadSavedPlane(plane);
+    const remove=document.createElement('button');remove.className='delete-plane';remove.textContent='Delete';
+    remove.onclick=()=>{const remaining=getSavedPlanes();remaining.splice(index,1);localStorage.setItem('foldLabPlanes',JSON.stringify(remaining));renderPlaneGrid()};
+    actions.append(open,remove);card.append(selectLabel,thumbnail,title,date,actions);grid.appendChild(card);
+  });
+  updateRaceButton();
+}
+function updateRaceButton(){
+  const count=document.querySelectorAll('.race-select:checked').length;
+  document.getElementById('raceBtn').disabled=count<2||Boolean(activeRace||activeTournament);
+  document.getElementById('tournamentBtn').disabled=count<2||Boolean(activeRace||activeTournament);
+  document.getElementById('competitionStatus').textContent=count<2
+    ?`Select at least two saved planes below. ${count} selected.`
+    :`${count} planes selected. They will use the same throw and wind settings.`;
+}
+function getPlaneGeometryForRace(plane){
+  if(Array.isArray(plane.faces))return{faces:plane.faces,creases:plane.creases||[]};
+  const previous={faces,creases,undoStack,selectedPoints,selectedEdge,wingMode,editorRotation,flightCache,foldLayer:document.getElementById('foldLayer').value};
+  try{
+    document.getElementById('foldLayer').value='all';
+    faces=[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false,layer:0}];
+    creases=[];undoStack=[];selectedPoints=[];selectedEdge=null;wingMode=false;editorRotation=0;
+    (plane.creases||[]).filter(crease=>!crease.paired).forEach(crease=>{
+      if(crease.a&&crease.b)applyFold(crease.a,crease.b,false,crease.type==='mountain'?'mountain':'valley',crease.kind==='center'?'center':crease.kind==='wing'?'wing':'crease',crease.kind==='wing'?crease.side:null);
+    });
+    return{faces:faces.map(face=>({points:face.points.map(point=>({...point})),folded:face.folded,foldType:face.foldType,layer:face.layer||0})),creases:creases.map(crease=>({...crease}))};
+  }finally{
+    faces=previous.faces;creases=previous.creases;undoStack=previous.undoStack;selectedPoints=previous.selectedPoints;selectedEdge=previous.selectedEdge;
+    wingMode=previous.wingMode;editorRotation=previous.editorRotation;flightCache=previous.flightCache;
+    document.getElementById('foldLayer').value=previous.foldLayer;updateFoldControls();draw();
+  }
+}
+function runPlaneCompetition(){
+  const planes=getSavedPlanes(),indexes=[...document.querySelectorAll('.race-select:checked')].map(input=>Number(input.dataset.planeIndex));
+  if(indexes.length<2)return;
+  const wind=Number(document.getElementById('raceWind').value),throwV=Number(document.getElementById('raceThrow').value);
+  const results=indexes.map(index=>simulateSavedPlane(planes[index],wind,throwV));
+  startCompetitionAnimation(results,()=>{
+    document.getElementById('competitionStatus').textContent=`Competition complete · ${wind===0?'still air':`${wind} m/s headwind`} · ${throwV===1?'normal':throwV<1?'gentle':'hard'} throw.`
+  });
+}
+function simulateSavedPlane(plane,wind,throwV){
+  const geometry=getPlaneGeometryForRace(plane),previousFaces=faces,previousCreases=creases;
+  try{
+    faces=geometry.faces;creases=geometry.creases;
+    const stats=planeStats(),flight=simulateFlight(wind,throwV,stats),variation=.96+Math.random()*.08;
+    return{
+      name:plane.name,
+      source:plane,
+      distance:flight.distance*variation,
+      time:flight.time,
+      maxAltitude:flight.maxAltitude,
+      trajectory:flight.trajectory.map(point=>({...point,x:point.x*variation})),
+      color:plane.art?.primary||'#fffef8',
+      accent:plane.art?.secondary||'#2e65ff'
+    };
+  }finally{
+    faces=previousFaces;creases=previousCreases;
+  }
+}
+function startCompetitionAnimation(results,onFinish=null){
+  results.sort((a,b)=>b.distance-a.distance);
+  const resultsList=document.getElementById('raceResults');
+  resultsList.replaceChildren();
+  results.forEach((result,index)=>{
+    const row=document.createElement('div');row.className=`race-result${index===0?' winner':''}`;
+    const name=document.createElement('strong');name.textContent=`${index===0?'🏆 ':''}${index+1}. ${result.name}`;
+    const distance=document.createElement('span');distance.textContent=`${(result.distance*3.28084).toFixed(0)} ft · ${result.distance.toFixed(1)} m`;
+    const time=document.createElement('small');time.textContent=`${result.time.toFixed(1)} s`;
+    row.append(name,distance,time);resultsList.appendChild(row);
+  });
+  const raceCanvas=document.getElementById('raceCanvas');
+  raceCanvas.hidden=false;
+  raceCanvas.style.height=`${Math.max(230,results.length*78+45)}px`;
+  activeRace={results,startedAt:performance.now(),duration:4800,maxDistance:Math.max(...results.map(result=>result.distance),1),onFinish};
+  document.getElementById('raceBtn').disabled=true;
+  document.getElementById('tournamentBtn').disabled=true;
+  if(!onFinish)document.getElementById('competitionStatus').textContent='Planes away! Distances include a small random variation (up to ±4%) each race.';
+  updateFoldControls();
+  setStats();
+  raceAnimationFrame=requestAnimationFrame(animateCompetition);
+}
+function sampleTrajectory(trajectory,time){
+  if(time<=trajectory[0].time)return trajectory[0];
+  for(let i=1;i<trajectory.length;i++){
+    if(trajectory[i].time>=time){
+      const a=trajectory[i-1],b=trajectory[i],part=(time-a.time)/Math.max(.0001,b.time-a.time);
+      return{x:a.x+(b.x-a.x)*part,y:a.y+(b.y-a.y)*part,pitch:a.pitch+(b.pitch-a.pitch)*part};
+    }
+  }
+  return trajectory[trajectory.length-1];
+}
+function animateCompetition(now){
+  if(!activeRace)return;
+  const canvas=document.getElementById('raceCanvas'),rect=canvas.getBoundingClientRect(),width=rect.width,height=rect.height,dpr=devicePixelRatio||1;
+  if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr)}
+  const context=canvas.getContext('2d');
+  context.setTransform(dpr,0,0,dpr,0,0);
+  context.clearRect(0,0,width,height);
+  context.fillStyle='#edf0eb';context.fillRect(0,0,width,height);
+  const {results,startedAt,duration,maxDistance}=activeRace,progress=Math.min(1,(now-startedAt)/duration);
+  const left=104,right=24,trackWidth=Math.max(1,width-left-right),laneHeight=height/results.length,altScale=Math.min(13,laneHeight*.34);
+  context.font='11px system-ui';context.textBaseline='middle';
+  results.forEach((plane,index)=>{
+    const laneTop=index*laneHeight,laneBottom=laneTop+laneHeight,baseY=laneTop+laneHeight*.78;
+    context.strokeStyle='#d3d9d1';context.lineWidth=1;context.beginPath();context.moveTo(left,laneBottom);context.lineTo(width-right,laneBottom);context.stroke();
+    context.fillStyle='#526057';context.textAlign='left';context.fillText(plane.name.slice(0,14),10,laneTop+14);
+    context.strokeStyle='#b8c0b7';context.setLineDash([3,5]);context.beginPath();context.moveTo(left,baseY);context.lineTo(width-right,baseY);context.stroke();context.setLineDash([]);
+    const elapsed=progress*plane.time,trajectory=plane.trajectory,position=sampleTrajectory(trajectory,elapsed);
+    const flightPoints=trajectory.filter(point=>point.time<elapsed);
+    flightPoints.push(position);
+    context.beginPath();
+    flightPoints.forEach((point,pointIndex)=>{
+      const x=left+Math.max(0,point.x)/maxDistance*trackWidth,y=Math.max(laneTop+22,baseY-point.y*altScale);
+      if(pointIndex===0)context.moveTo(x,y);else context.lineTo(x,y);
+    });
+    context.strokeStyle=plane.accent;context.lineWidth=2;context.stroke();
+    const x=left+Math.max(0,position.x)/maxDistance*trackWidth,y=Math.max(laneTop+22,baseY-position.y*altScale);
+    context.save();context.translate(x,y);context.rotate(-position.pitch);
+    context.fillStyle=plane.color;context.strokeStyle=plane.accent;context.lineWidth=1.5;
+    context.beginPath();context.moveTo(12,0);context.lineTo(-8,-5);context.lineTo(-3,0);context.lineTo(-8,5);context.closePath();context.fill();context.stroke();
+    context.restore();
+  });
+  if(progress<1){
+    raceAnimationFrame=requestAnimationFrame(animateCompetition);
+  }else{
+    const {results,onFinish}=activeRace;
+    activeRace=null;raceAnimationFrame=0;
+    if(onFinish){
+      onFinish(results);
+    }else{
+      updateRaceButton();
+      document.getElementById('competitionStatus').textContent='Competition complete! Distances include small random variation (±4%). Run it again for a new result.';
+    }
+  }
+}
+function setTournamentControls(running){
+  document.querySelectorAll('.race-select,.plane-card-actions button').forEach(control=>{control.disabled=running});
+  document.getElementById('newPlaneBtn').disabled=running;
+  document.getElementById('closeHomeBtn').disabled=running;
+  if(running){
+    document.getElementById('raceBtn').disabled=true;
+    document.getElementById('tournamentBtn').disabled=true;
+  }else{
+    updateRaceButton();
+  }
+}
+function startTournament(){
+  const planes=getSavedPlanes(),indexes=[...document.querySelectorAll('.race-select:checked')].map(input=>Number(input.dataset.planeIndex));
+  if(indexes.length<2||activeRace||activeTournament)return;
+  activeTournament={
+    entries:indexes.map(index=>planes[index]),
+    rounds:[],
+    roundNumber:1,
+    wind:Number(document.getElementById('raceWind').value),
+    throwV:Number(document.getElementById('raceThrow').value)
+  };
+  document.getElementById('bracketBoard').replaceChildren();
+  document.getElementById('raceResults').replaceChildren();
+  document.getElementById('competitionStatus').textContent='Bracket tournament started. Each matchup is decided by simulated flight distance.';
+  setTournamentControls(true);
+  beginTournamentRound();
+}
+function beginTournamentRound(){
+  if(!activeTournament)return;
+  const tournament=activeTournament;
+  if(tournament.entries.length===1){
+    finishTournament(tournament.entries[0]);
+    return;
+  }
+  const matches=[];
+  for(let i=0;i<tournament.entries.length;i+=2){
+    const match={a:tournament.entries[i],b:tournament.entries[i+1]||null,winner:null,status:''};
+    if(!match.b){match.winner=match.a;match.status='Bye · advances'}
+    else match.status='Waiting';
+    matches.push(match);
+  }
+  const round={number:tournament.roundNumber,matches};
+  tournament.rounds.push(round);
+  tournament.currentRound=round;
+  renderTournamentBracket();
+  playNextTournamentMatch();
+}
+function playNextTournamentMatch(){
+  if(!activeTournament)return;
+  const tournament=activeTournament,round=tournament.currentRound;
+  const match=round.matches.find(item=>item.b&&!item.winner);
+  if(!match){
+    tournament.entries=round.matches.map(item=>item.winner);
+    tournament.roundNumber++;
+    beginTournamentRound();
+    return;
+  }
+  match.status='Racing now';
+  renderTournamentBracket();
+  const results=[
+    simulateSavedPlane(match.a,tournament.wind,tournament.throwV),
+    simulateSavedPlane(match.b,tournament.wind,tournament.throwV)
+  ];
+  document.getElementById('competitionStatus').textContent=`Round ${round.number}: ${match.a.name} vs ${match.b.name}`;
+  startCompetitionAnimation(results,ranked=>{
+    match.winner=ranked[0].source===match.a?match.a:match.b;
+    match.status=`${match.winner.name} wins · ${(ranked[0].distance*3.28084).toFixed(0)} ft`;
+    renderTournamentBracket();
+    playNextTournamentMatch();
+  });
+}
+function renderTournamentBracket(){
+  const board=document.getElementById('bracketBoard');
+  board.replaceChildren();
+  activeTournament?.rounds.forEach((round,index)=>{
+    const column=document.createElement('section');column.className='bracket-round';
+    const heading=document.createElement('h3');
+    const finalRound=index===activeTournament.rounds.length-1&&round.matches.length===1;
+    heading.textContent=finalRound?'Final':`Round ${round.number}`;
+    column.appendChild(heading);
+    round.matches.forEach(match=>{
+      const card=document.createElement('div');card.className='bracket-match';
+      [[match.a,match.winner===match.a],[match.b,match.winner===match.b]].forEach(([plane,isWinner])=>{
+        const team=document.createElement('div');team.className=`bracket-team${isWinner?' won':''}`;
+        team.textContent=plane?plane.name:'—';
+        card.appendChild(team);
+      });
+      const status=document.createElement('div');status.className='bracket-match-status';status.textContent=match.status||'Waiting';
+      card.appendChild(status);column.appendChild(card);
+    });
+    board.appendChild(column);
+  });
+}
+function finishTournament(champion){
+  renderTournamentBracket();
+  activeTournament=null;
+  setTournamentControls(false);
+  document.getElementById('competitionStatus').textContent=`Tournament champion: ${champion.name}! Winner determined by estimated distance with ±4% variation per matchup.`;
+}
+function savePlane(result){
+  let defaultName='Custom plane '+(getSavedPlanes().length+1);
+  const name=window.prompt('Name this plane',defaultName);
+  if(name===null)return;
+  const art={enabled:customArt.enabled,pattern:customArt.pattern,primary:customArt.primary,secondary:customArt.secondary,accent:customArt.accent,text:customArt.text,imageSrc:customArt.imageSrc};
+  const snapshot=designSnapshot();
+  const data={name:name.trim()||defaultName,paper:{width:PAGE_W,height:PAGE_H},rotation:editorRotation,faces:snapshot.faces,creases:snapshot.creases,art,savedAt:new Date().toLocaleString(),thumbnail:canvas.toDataURL('image/png')};
+  const planes=getSavedPlanes();planes.unshift(data);
+  try{
+    localStorage.setItem('foldLabPlanes',JSON.stringify(planes));
+    localStorage.setItem('foldLabPlane',JSON.stringify(data));
+  }catch(error){
+    alert('This plane could not be saved because the browser storage is full. Try removing an image or deleting an older plane.');
+    return;
+  }
+  const btn=result?document.getElementById('saveResult'):document.getElementById('saveBtn');
+  const old=btn.textContent;btn.textContent='Saved ✓';setTimeout(()=>{btn.textContent=old},1200);
+  if(result){document.getElementById('modal').classList.remove('open');finishFlight()}
+  renderPlaneGrid();
+}
+function loadSavedPlane(data){
+  faces=[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false,layer:0}];
+  creases=[];undoStack=[];selectedPoints=[];selectedEdge=null;testMode=false;wingMode=false;pointFoldMode=false;editorRotation=data.rotation||0;
+  if(data.art){
+    customArt={...data.art,image:null,imageSrc:data.art.imageSrc||''};
+    if(customArt.imageSrc){const image=new Image();image.onload=()=>{customArt.image=image;draw()};image.src=customArt.imageSrc}
+    document.getElementById('artPattern').value=customArt.pattern||'plain';
+    document.getElementById('artPrimary').value=customArt.primary||'#fffef8';
+    document.getElementById('artSecondary').value=customArt.secondary||'#2e65ff';
+    document.getElementById('artAccent').value=customArt.accent||'#ff7043';
+    document.getElementById('artText').value=customArt.text||'';
+  }else{
+    customArt={enabled:false,pattern:'plain',primary:'#fffef8',secondary:'#2e65ff',accent:'#ff7043',text:'',image:null,imageSrc:''};
+  }
+  if(Array.isArray(data.faces)&&Array.isArray(data.creases)){
+    faces=data.faces.map(face=>({points:face.points.map(point=>({...point})),folded:face.folded,foldType:face.foldType,layer:face.layer??(face.folded?1:0)}));
+    creases=data.creases.map(crease=>({...crease,a:{...crease.a},b:{...crease.b}}));
+  }else{
+    (data.creases||[]).filter(c=>!c.paired).forEach(c=>{
+      if(!c.a||!c.b)return;
+      applyFold(c.a,c.b,false,c.type==='mountain'?'mountain':'valley',c.kind==='center'?'center':c.kind==='wing'?'wing':'crease',c.kind==='wing'?c.side:null);
+    });
+  }
+  document.getElementById('homeScreen').classList.remove('open');
+  document.getElementById('testBtn').textContent='Test flight →';
+  document.querySelector('.stage-head').style.opacity='1';
+  document.getElementById('tooltip').style.display='block';
+  setStats();updateFoldControls();draw();
+}
+document.getElementById('homeBtn').onclick=openHome;
+document.getElementById('closeHomeBtn').onclick=()=>document.getElementById('homeScreen').classList.remove('open');
+document.getElementById('newPlaneBtn').onclick=()=>{document.getElementById('resetBtn').onclick();document.getElementById('homeScreen').classList.remove('open')};
+document.getElementById('raceBtn').onclick=runPlaneCompetition;
+document.getElementById('tournamentBtn').onclick=startTournament;
+function getDescriptionPreset(description){
+  const text=description.toLowerCase();
+  const namedModel=/\bsuzanne\b/.test(text)?'suzanne':/\bnakamura\b/.test(text)?'nakamura-lock':/\bclassic\s+dart\b/.test(text)?'classic-dart':/\bclassic\s+glider\b/.test(text)?'classic-glider':'';
+  const has=words=>words.some(word=>{
+    const forms=word.endsWith('y')?[word,`${word.slice(0,-1)}ier`,`${word.slice(0,-1)}iest`]:[word,`${word}er`,`${word}est`];
+    return forms.some(form=>new RegExp(`\\b${form}\\b`).test(text));
+  });
+  const traits=[];
+  const wantsDistance=has(['glider','glide','gliding','long-range','distance','soaring','soar','endurance','floaty','floating','buoyant','cruise','efficient','aerodynamic','lofting','slow','graceful','elegant','gentle']);
+  const wantsSpeed=has(['fast','quick','speedy','rapid','racing','dart','sprint','swift','high-speed','rocket','zippy','powerful']);
+  const wantsStability=has(['stable','steady','balanced','beginner','safe','predictable','smooth','reliable','forgiving','calm','sturdy','robust','durable','reinforced','solid']);
+  const wantsStunt=has(['stunt','agile','nimble','acrobatic','acrobat','trick','turning','maneuverable','manoeuvrable','responsive','loopy','athletic','dynamic','playful']);
+  if(wantsDistance)traits.push('long-gliding');
+  if(wantsSpeed)traits.push('speed');
+  if(wantsStability)traits.push('stability');
+  if(wantsStunt)traits.push('maneuverability');
+
+  const isWide=has(['wide','broad','large','huge','spacious','roomy','expansive']);
+  const isNarrow=has(['narrow','skinny','slim','small','compact','thin','slender']);
+  const isLong=has(['long','elongated','extended']);
+  const isShort=has(['short','stubby','compact']);
+  const isSwept=has(['swept','delta','pointed','sharp','angular']);
+  const isRounded=has(['rounded','curved','soft','blunt']);
+  if(isWide)traits.push('wide wings');
+  if(isNarrow)traits.push('narrow wings');
+  if(isLong)traits.push('long body');
+  if(isShort)traits.push('short body');
+  if(isSwept)traits.push('swept wings');
+  if(isRounded)traits.push('rounded profile');
+
+  const colors={
+    red:{primary:'#fff1ed',secondary:'#d94b36',accent:'#ff7043'},
+    blue:{primary:'#eff5ff',secondary:'#2e65ff',accent:'#61d7d2'},
+    orange:{primary:'#fff4e8',secondary:'#ff7043',accent:'#d94b36'},
+    green:{primary:'#eef8ef',secondary:'#3f9c68',accent:'#61d7d2'},
+    purple:{primary:'#f5efff',secondary:'#7557b8',accent:'#c06bc4'},
+    yellow:{primary:'#fffbea',secondary:'#e8bd36',accent:'#ff7043'},
+    black:{primary:'#26313b',secondary:'#111820',accent:'#ff7043'},
+    white:{primary:'#fffef8',secondary:'#bfc7c2',accent:'#61d7d2'},
+    gray:{primary:'#f2f4f3',secondary:'#68747c',accent:'#61d7d2'}
+  };
+  let art={...colors.blue,pattern:'plain',text:''};
+  const colorWords={grey:'gray',silver:'gray',gold:'yellow',crimson:'red',scarlet:'red',navy:'blue',cyan:'blue',teal:'blue',lime:'green',emerald:'green',violet:'purple',pink:'purple',charcoal:'black'};
+  let mentionedColors=[];
+  Object.keys({...colors,...colorWords}).forEach(name=>{
+    const matches=[...text.matchAll(new RegExp(`\\b${name}\\b`,'g'))];
+    matches.forEach(match=>mentionedColors.push({name,index:match.index}));
+  });
+  mentionedColors.sort((a,b)=>a.index-b.index);
+  if(mentionedColors.length){
+    const primary=colorWords[mentionedColors[0].name]||mentionedColors[0].name;
+    const secondaryName=colorWords[mentionedColors[1]?.name]||mentionedColors[1]?.name||primary;
+    art={...colors[primary],secondary:colors[secondaryName].secondary,accent:colors[secondaryName].accent,pattern:art.pattern,text:art.text};
+    traits.push(`${mentionedColors.map(color=>color.name).join(' and ')} color scheme`);
+  }
+  if(/\b(stripes?|racing)\b/.test(text))art.pattern='stripes';
+  else if(/\b(chevron|chevrons)\b/.test(text))art.pattern='chevron';
+  else if(/\b(dots?|polka|space)\b/.test(text))art.pattern='spots';
+  else if(/\b(sunset|gradient)\b/.test(text))art.pattern='gradient';
+  else if(/\b(camo|camouflage)\b/.test(text))art.pattern='camo';
+  else if(/\b(stealth|panel|panels)\b/.test(text))art.pattern='stealth';
+  const decalMatch=text.match(/\b(?:decal|marking|with text|callsign)\s+(?:called\s+|named\s+)?["']?([a-z0-9 -]{1,18})/);
+  if(decalMatch)art.text=decalMatch[1].trim().toUpperCase();
+
+  const weightSets=[];
+  if(wantsDistance)weightSets.push({distance:.5,time:.3,glide:.2,speed:0,stability:0});
+  if(wantsSpeed)weightSets.push({distance:.35,time:.15,glide:0,speed:.5,stability:0});
+  if(wantsStability)weightSets.push({distance:.25,time:.2,glide:0,speed:0,stability:.55});
+  if(wantsStunt)weightSets.push({distance:.2,time:.1,glide:.1,speed:.3,stability:.3});
+  const weights=weightSets.length
+    ?Object.fromEntries(['distance','time','glide','speed','stability'].map(key=>[key,weightSets.reduce((sum,set)=>sum+set[key],0)/weightSets.length]))
+    :{distance:.4,time:.2,glide:.15,speed:.1,stability:.25};
+  const style=wantsStunt?'stunt':wantsSpeed?'dart':wantsDistance?'glider':wantsStability?'stable':'balanced';
+  const artPatterns={futuristic:'gradient',sleek:'stealth',racing:'stripes',sporty:'stripes',playful:'spots',polka:'spots',camouflaged:'camo',neon:'gradient',metallic:'stealth',vintage:'stripes',pastel:'gradient'};
+  Object.entries(artPatterns).forEach(([word,pattern])=>{if(new RegExp(`\\b${word}\\b`).test(text))art.pattern=pattern});
+  const shade=has(['dark','deep','rich'])?-.22:has(['light','pale','soft'])? .28:0;
+  if(shade){
+    const mix=(hex,target,amount)=>{
+      const from=hex.match(/[a-f0-9]{2}/gi).map(value=>parseInt(value,16));
+      const to=target.match(/[a-f0-9]{2}/gi).map(value=>parseInt(value,16));
+      return`#${from.map((value,index)=>Math.round(value+(to[index]-value)*Math.abs(amount)).toString(16).padStart(2,'0')).join('')}`;
+    };
+    const target=shade<0?'#18202a':'#ffffff';
+    art.primary=mix(art.primary,target,shade);
+    art.secondary=mix(art.secondary,target,shade);
+  }
+  if(art.pattern!=='plain')traits.push(`${art.pattern} finish`);
+
+  let startX=(wantsDistance||isWide)? .2:.7;
+  let rootY=wantsDistance?4.8:wantsStunt?2.8:3.4;
+  let tipY=wantsDistance?9.4:wantsStunt?7.8:8.8;
+  let noseY=wantsSpeed?2.8:3.3,lockY=null;
+  if(isWide)startX=.15;
+  if(isNarrow)startX=.95;
+  if(isLong)tipY=Math.min(10.2,tipY+.5);
+  if(isShort)tipY=Math.max(7.5,tipY-.5);
+  if(isSwept){startX=Math.max(.15,startX-.15);rootY=Math.max(2.2,rootY-.4)}
+  if(isRounded){startX=Math.min(1.2,startX+.1);tipY=Math.min(10.2,tipY+.2)}
+  const foldType=has(['mountain','stunt','trick','acrobatic'])?'mountain':'valley';
+  const namedGeometry={
+    'classic-dart':{name:'Classic Dart',startX:.95,rootY:3.0,tipY:8.4,noseY:2.8,lockY:null,widthTarget:.25},
+    'nakamura-lock':{name:'Nakamura Lock',startX:.55,rootY:3.6,tipY:9.2,noseY:3.3,lockY:2.1,widthTarget:.55},
+    suzanne:{name:'Suzanne · Record-Flight Style',startX:.35,rootY:4.2,tipY:9.2,noseY:3.5,lockY:2.4,widthTarget:.75},
+    'classic-glider':{name:'Classic Glider',startX:.2,rootY:4.8,tipY:9.5,noseY:3.3,lockY:null,widthTarget:.8}
+  };
+  const named=namedGeometry[namedModel];
+  if(named){({startX,rootY,tipY,noseY,lockY}=named)}
+  if(isWide)traits.push('wide-wing geometry');
+  if(isNarrow)traits.push('compact-wing geometry');
+  if(lockY!==null)traits.push('locking nose');
+  const namePrefix=wantsDistance?'Glider':wantsStunt?'Stunt':wantsSpeed?'Speed':wantsStability?'Stable':'Balanced';
+  const patternName=art.pattern==='plain'?'':` ${art.pattern[0].toUpperCase()+art.pattern.slice(1)}`;
+  const colorName=mentionedColors.length?` ${mentionedColors[0].name[0].toUpperCase()+mentionedColors[0].name.slice(1)}`:'';
+  return{
+    name:named?`${named.name}${colorName}${patternName}`:`${namePrefix}${colorName}${patternName} Plane`,
+    startX,rootY,tipY,noseY,lockY,foldType,art:{...art,enabled:true},weights,
+    widthTarget:named?.widthTarget??(isWide? .8:isNarrow? .25:.5),
+    traits:[...new Set(traits)]
+  };
+}
+function generatePlaneFromDescription(description,imageDesign=null){
+  const design=getDescriptionPreset(description);
+  if(imageDesign){
+    const geometry=imageDesign.geometry;
+    if(!geometry||!imageDesign.art||typeof imageDesign.name!=='string')throw new Error('The image service returned an incomplete plane design.');
+    Object.assign(design,{
+      name:imageDesign.name,
+      startX:geometry.startX,
+      rootY:geometry.rootY,
+      tipY:geometry.tipY,
+      noseY:geometry.noseY,
+      lockY:geometry.lockY,
+      foldType:geometry.foldType,
+      widthTarget:geometry.widthTarget,
+      art:{...design.art,...imageDesign.art,enabled:true}
+    });
+  }
+  document.getElementById('foldLayer').value='all';
+  document.getElementById('resetBtn').onclick();
+  const buildCandidate=(startX,rootY,tipY,render=false)=>{
+    faces=[{points:[{x:0,y:0},{x:PAGE_W,y:0},{x:PAGE_W,y:PAGE_H},{x:0,y:PAGE_H}],folded:false,layer:0}];
+    creases=[];selectedPoints=[];selectedEdge=null;undoStack=[];
+    const center=applyFold({x:PAGE_W/2,y:0},{x:PAGE_W/2,y:PAGE_H},false,'valley','center',null,render);
+    if(!center)return false;
+    const a={x:startX,y:rootY},b={x:PAGE_W/2,y:tipY};
+    if(!applyFold(a,b,false,design.foldType,'wing',1,render))return false;
+    const mirrored=mirrorCrease({a,b});
+    const folded=applyFold(mirrored.a,mirrored.b,false,design.foldType==='mountain'?'valley':'mountain','wing',-1,render);
+    if(folded)creases[creases.length-1].paired=true;
+    if(!folded)return false;
+    const tailY=tipY-.7;
+    if(!applyFold({x:0,y:tailY},{x:PAGE_W,y:tailY},false,'valley','tail',1,render))return false;
+    const nose={a:{x:0,y:0},b:{x:PAGE_W/2,y:design.noseY}};
+    if(!applyFold(nose.a,nose.b,false,'valley','nose',1,render))return false;
+    const oppositeNose=mirrorCrease(nose);
+    if(!applyFold(oppositeNose.a,oppositeNose.b,false,'mountain','nose',-1,render))return false;
+    creases[creases.length-1].paired=true;
+    if(design.lockY!==null&&!applyFold({x:0,y:design.lockY},{x:PAGE_W,y:design.lockY},false,'mountain','lock',1,render))return false;
+    return true;
+  };
+  let best=null;
+  const starts=[.15,.35,.55,.75,.95,1.15],roots=[2.4,3.2,4,4.8,5.6],tips=[7.6,8.4,9.2,10];
+  if(imageDesign){
+    starts.push(design.startX);roots.push(design.rootY);tips.push(design.tipY);
+  }
+  for(const startX of starts)for(const rootY of roots)for(const tipY of tips){
+    if(tipY-rootY<2.2)continue;
+    if(!buildCandidate(startX,rootY,tipY))continue;
+    const stats=planeStats(),flight=simulateFlight(0,1.15,stats),w=design.weights;
+    const distance=Math.min(1,flight.distance/40),time=Math.min(1,flight.time/10),glide=Math.min(1,flight.glideRatio/10);
+    const speed=Math.min(1,flight.maxSpeed/14),stability=stats.stability/100;
+    const geometryWeight=imageDesign?.geometry?.startX!==undefined ? .32 : .035;
+    const fitness=distance*w.distance+time*w.time+glide*w.glide+speed*w.speed+stability*w.stability
+      -geometryWeight*Math.abs(startX-design.startX)/1.15
+      -(imageDesign?.geometry?.rootY!==undefined ? .28 : .025)*Math.abs(rootY-design.rootY)/3.2
+      -(imageDesign?.geometry?.tipY!==undefined ? .28 : .025)*Math.abs(tipY-design.tipY)/2.4
+      -(imageDesign?.geometry?.widthTarget!==undefined ? .16 : .02)*Math.abs(stats.span/INCH_TO_M/(PAGE_W*2)-design.widthTarget);
+    if(!best||fitness>best.fitness)best={startX,rootY,tipY,fitness,flight,stats};
+  }
+  if(!best||!buildCandidate(best.startX,best.rootY,best.tipY,true)){
+    document.getElementById('resetBtn').onclick();
+    throw new Error('Could not construct a valid symmetric plane from the prompt.');
+  }
+  selectedPoints=[];selectedEdge=null;
+  customArt=design.art;
+  document.getElementById('artPattern').value=design.art.pattern;
+  document.getElementById('artPrimary').value=design.art.primary;
+  document.getElementById('artSecondary').value=design.art.secondary;
+  document.getElementById('artAccent').value=design.art.accent;
+  document.getElementById('artText').value=design.art.text;
+  setStats();
+  updateFoldControls();
+  draw();
+  document.getElementById('designerStatus').textContent=`Built ${design.name} from the folded paper geometry · nose, wings, and tail are creased`;
+  document.getElementById('footerTip').textContent=`${design.name} is ready. Test flight uses the same folded faces and artwork shown here.`;
+}
+document.querySelectorAll('[data-prompt]').forEach(chip=>{
+  chip.onclick=()=>{
+    document.getElementById('planeDescription').value=chip.dataset.prompt;
+    document.getElementById('planeDescription').focus();
+  };
+});
+const planePresetPrompts={
+  'classic-dart':'Classic Dart, fast narrow swept wings, sharp pointed nose',
+  'nakamura-lock':'Nakamura Lock, stable swept wings, pointed nose with a locking tab',
+  suzanne:'Suzanne record-flight style, long-distance glider with swept wings and a locking nose',
+  'classic-glider':'Classic Glider, stable wide wings, long-distance flight'
+};
+document.getElementById('usePlanePresetBtn').onclick=()=>{
+  const prompt=planePresetPrompts[document.getElementById('planePresetSelect').value];
+  if(!prompt)throw new Error('The selected paper plane preset is not available.');
+  document.getElementById('planeDescription').value=prompt;
+  submitPlanePrompt();
+};
+function submitPlanePrompt(){
+  const description=document.getElementById('planeDescription').value.trim();
+  if(!description){
+    document.getElementById('designerStatus').textContent='Describe the plane first.';
+    document.getElementById('planeDescription').focus();
+    return;
+  }
+  const button=document.getElementById('generatePlaneBtn');
+  button.classList.add('generating');
+  button.textContent='Interpreting prompt...';
+  document.getElementById('designerStatus').textContent='Analyzing shape, flight behavior, wings, folds, and style...';
+  setTimeout(()=>{
+    try{
+      generatePlaneFromDescription(description);
+    }catch(error){
+      console.error('Unable to build a plane from the description:',error);
+      document.getElementById('designerStatus').textContent='Could not build that design. Try describing a simpler paper plane.';
+    }finally{
+      button.classList.remove('generating');
+      button.textContent='Interpret & create plane';
+    }
+  },650);
+}
+document.getElementById('generatePlaneBtn').onclick=submitPlanePrompt;
+document.getElementById('planeDescription').onkeydown=e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
+    e.preventDefault();
+    submitPlanePrompt();
+  }
+};
+document.getElementById('planeImageFile').onchange=event=>{
+  const file=event.target.files?.[0];
+  if(file)document.getElementById('imageDesignerStatus').textContent=`Selected ${file.name} · max 5 MB. This image will be sent to the configured AI provider.`;
+};
+document.getElementById('generatePlaneFromImageBtn').onclick=async()=>{
+  const input=document.getElementById('planeImageFile'),file=input.files?.[0],button=document.getElementById('generatePlaneFromImageBtn'),status=document.getElementById('imageDesignerStatus');
+  if(!file){status.textContent='Choose a PNG, JPEG, or WebP image first.';input.focus();return}
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)){status.textContent='Choose a PNG, JPEG, or WebP image.';return}
+  if(file.size>5*1024*1024){status.textContent='Image must be smaller than 5 MB.';return}
+  button.disabled=true;button.textContent='Analyzing image…';status.textContent='Sending the image to the configured AI provider for shape analysis…';
+  try{
+    const imageData=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onerror=()=>reject(new Error('Could not read the selected image.'));
+      reader.onload=()=>typeof reader.result==='string'?resolve(reader.result):reject(new Error('The image could not be encoded.'));
+      reader.readAsDataURL(file);
+    });
+    const response=await fetch('/api/image-to-plane',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageData})});
+    let result;
+    try{result=await response.json()}catch{throw new Error('The image service returned an invalid response.')}
+    if(!response.ok)throw new Error(result.error||`Image conversion failed (HTTP ${response.status}).`);
+    generatePlaneFromDescription(result.design.description,result.design);
+    document.getElementById('planeDescription').value=result.design.description;
+    status.textContent=`Created ${result.design.name} from ${file.name}. Review the geometry and test its flight.`;
+  }catch(error){
+    console.error('Unable to create a plane from the image:',error);
+    status.textContent=error.message||'Image conversion failed. Check the server and try again.';
+  }finally{button.disabled=false;button.textContent='Analyze image & make plane'}
+};
+function readArtworkControls(){
+  return{
+    enabled:true,
+    pattern:document.getElementById('artPattern').value,
+    primary:document.getElementById('artPrimary').value,
+    secondary:document.getElementById('artSecondary').value,
+    accent:document.getElementById('artAccent').value,
+    text:document.getElementById('artText').value.trim(),
+    image:customArt.image,
+    imageSrc:customArt.imageSrc
+  };
+}
+function applyEditorTheme(save=true){
+  const mode=document.getElementById('editorThemeSelect').value;
+  document.body.dataset.editorTheme=mode;
+  const background=document.getElementById('themeBackground').value,accent=document.getElementById('themeAccent').value;
+  if(mode==='custom'){
+    const rgb=background.match(/[a-f\d]{2}/gi).map(value=>parseInt(value,16));
+    const luminance=(.2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2])/255;
+    document.body.style.setProperty('--theme-bg',background);
+    document.body.style.setProperty('--theme-panel',`color-mix(in srgb, ${background} 88%, ${luminance<.45?'white':'black'})`);
+    document.body.style.setProperty('--theme-line',`color-mix(in srgb, ${background} 72%, ${luminance<.45?'white':'black'})`);
+    document.body.style.setProperty('--theme-ink',luminance<.45?'#f2f5f7':'#18202a');
+    document.body.style.setProperty('--theme-muted',luminance<.45?'#b8c2c9':'#697169');
+    document.body.style.setProperty('--theme-accent',accent);
+  }else{
+    ['--theme-bg','--theme-panel','--theme-line','--theme-ink','--theme-muted','--theme-accent'].forEach(property=>document.body.style.removeProperty(property));
+  }
+  document.getElementById('themeBackground').disabled=mode!=='custom';
+  document.getElementById('themeAccent').disabled=mode!=='custom';
+  document.getElementById('themeStatus').textContent=mode==='custom'?'Custom theme applied to the editor.':'Editor theme applied.';
+  if(save){
+    try{localStorage.setItem('foldLabTheme',JSON.stringify({mode,background,accent}))}
+    catch(error){console.error('Unable to save the editor theme:',error);document.getElementById('themeStatus').textContent='Theme applied, but could not be saved in browser storage.'}
+  }
+  draw();
+}
+document.getElementById('editorThemeSelect').onchange=()=>applyEditorTheme();
+document.getElementById('themeBackground').onchange=()=>applyEditorTheme();
+document.getElementById('themeAccent').onchange=()=>applyEditorTheme();
+try{
+  const theme=JSON.parse(localStorage.getItem('foldLabTheme')||'null');
+  if(theme&&['light','dark','custom'].includes(theme.mode)){
+    document.getElementById('editorThemeSelect').value=theme.mode;
+    if(/^#[\da-f]{6}$/i.test(theme.background))document.getElementById('themeBackground').value=theme.background;
+    if(/^#[\da-f]{6}$/i.test(theme.accent))document.getElementById('themeAccent').value=theme.accent;
+  }
+}catch(error){console.error('Unable to restore the saved editor theme:',error)}
+applyEditorTheme(false);
+function getSavedArtwork(){
+  try{return JSON.parse(localStorage.getItem('foldLabArtwork'))||[]}catch(error){return []}
+}
+function refreshArtworkSelect(){
+  const select=document.getElementById('artTemplateSelect'),templates=getSavedArtwork();
+  select.innerHTML='';
+  if(!templates.length){
+    select.innerHTML='<option value="">No saved artwork</option>';
+    select.disabled=true;
+    document.getElementById('loadArtBtn').disabled=true;
+    return;
+  }
+  select.disabled=false;
+  document.getElementById('loadArtBtn').disabled=false;
+  templates.forEach((template,index)=>{
+    const option=document.createElement('option');
+    option.value=String(index);
+    option.textContent=template.name;
+    select.appendChild(option);
+  });
+}
+document.getElementById('artImage').onchange=e=>{
+  const file=e.target.files&&e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const image=new Image();
+    image.onload=()=>{customArt.image=image;customArt.imageSrc=reader.result;customArt.enabled=true;draw();scheduleRoomSync();document.getElementById('artStatus').textContent=`Loaded image: ${file.name}`};
+    image.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+};
+document.getElementById('randomColorBtn').onclick=()=>{
+  const channel=()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0');
+  const color=`#${channel()}${channel()}${channel()}`;
+  customArt={...customArt,enabled:true,pattern:'plain',primary:color};
+  document.getElementById('artPattern').value='plain';
+  document.getElementById('artPrimary').value=color;
+  draw();
+  scheduleRoomSync();
+  document.getElementById('artStatus').textContent=`Random RGB plane color applied: ${color.toUpperCase()}`;
+};
+document.getElementById('applyArtBtn').onclick=()=>{
+  customArt=readArtworkControls();
+  draw();
+  scheduleRoomSync();
+  document.getElementById('artStatus').textContent='Artwork applied to the visible plane.';
+};
+document.getElementById('saveArtBtn').onclick=()=>{
+  const name=document.getElementById('artTemplateName').value.trim();
+  const templates=getSavedArtwork();
+  const template={name:name||`Artwork ${templates.length+1}`,art:{...readArtworkControls(),image:null}};
+  templates.push(template);
+  localStorage.setItem('foldLabArtwork',JSON.stringify(templates));
+  document.getElementById('artTemplateName').value=template.name;
+  document.getElementById('artStatus').textContent=`Saved artwork: ${template.name}`;
+  refreshArtworkSelect();
+  document.getElementById('artTemplateSelect').value=String(templates.length-1);
+};
+document.getElementById('loadArtBtn').onclick=()=>{
+  const templates=getSavedArtwork(),index=Number(document.getElementById('artTemplateSelect').value);
+  if(!templates[index])return;
+  const art=templates[index].art;
+  customArt={...art,image:customArt.image,enabled:true};
+  if(art.imageSrc){
+    const image=new Image();
+    image.onload=()=>{customArt.image=image;draw()};
+    image.src=art.imageSrc;
+  }else{
+    customArt.image=null;
+  }
+  document.getElementById('artPattern').value=art.pattern||'plain';
+  document.getElementById('artPrimary').value=art.primary||'#fffef8';
+  document.getElementById('artSecondary').value=art.secondary||'#2e65ff';
+  document.getElementById('artAccent').value=art.accent||'#ff7043';
+  document.getElementById('artText').value=art.text||'';
+  document.getElementById('artTemplateName').value=templates[index].name;
+  document.getElementById('artStatus').textContent=`Loaded artwork: ${templates[index].name}`;
+  draw();
+  scheduleRoomSync();
+};
+document.getElementById('clearArtBtn').onclick=()=>{
+  customArt={enabled:false,pattern:'plain',primary:'#fffef8',secondary:'#2e65ff',accent:'#ff7043',text:'',image:null,imageSrc:''};
+  document.getElementById('artText').value='';
+  document.getElementById('artImage').value='';
+  document.getElementById('artStatus').textContent='Custom artwork cleared.';
+  draw();
+  scheduleRoomSync();
+};
+try{const saved=JSON.parse(localStorage.getItem('foldLabPlane'));if(saved){if([0,90,180,270].includes(saved.rotation))editorRotation=saved.rotation;if(saved.art){customArt={...saved.art,image:null,imageSrc:saved.art.imageSrc||''};if(customArt.imageSrc){const image=new Image();image.onload=()=>{customArt.image=image;draw()};image.src=customArt.imageSrc}document.getElementById('artPattern').value=customArt.pattern||'plain';document.getElementById('artPrimary').value=customArt.primary||'#fffef8';document.getElementById('artSecondary').value=customArt.secondary||'#2e65ff';document.getElementById('artAccent').value=customArt.accent||'#ff7043';document.getElementById('artText').value=customArt.text||''}if(Array.isArray(saved.creases)){saved.creases.forEach(c=>{if(!c||c.paired||!c.a||!c.b||![c.a.x,c.a.y,c.b.x,c.b.y].every(Number.isFinite))return;const kind=c.kind==='center'?'center':c.kind==='wing'?'wing':'crease';if(!applyFold(c.a,c.b,false,c.type==='mountain'?'mountain':'valley',kind,kind==='wing'?c.side:null))return;const primary=creases[creases.length-1];if(kind==='wing'){const mirrored=mirrorCrease(c);if(!sameCrease(c,mirrored))creases.push({a:mirrored.a,b:mirrored.b,type:c.type==='mountain'?'valley':'mountain',kind:'wing',side:-primary.side,paired:true,folded:c.folded!==false,beforeFaces:primary.beforeFaces})}if(c.folded===false){faces=primary.beforeFaces.map(f=>({points:f.points.map(p=>({...p})),folded:f.folded,foldType:f.foldType}));primary.folded=false}})}}}catch(error){console.error('Unable to restore the saved paper plane:',error)}
+refreshArtworkSelect();renderPlaneGrid();resize();setStats();updateFoldControls();
+const invitedRoom=new URLSearchParams(location.search).get('room');
+if(invitedRoom&&/^[A-F0-9]{10}$/i.test(invitedRoom)){
+  document.getElementById('roomCodeInput').value=invitedRoom.toUpperCase();
+  connectToRoom({type:'join',code:invitedRoom.toUpperCase()});
+}
+</script>
+</body>
+</html>
